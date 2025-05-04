@@ -1,14 +1,9 @@
 import Layout from '../components/Layout'
 import BotonVolver from '../components/BotonVolver'
 
-const Transporte = () => {
+const RegistroCarga = () => {
   return (
     <Layout>
-
-
-
-
-
 
 
 
@@ -16,16 +11,9 @@ const Transporte = () => {
         <BotonVolver />
 
         <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-white text-center">
-          Módulo de Transporte
+          Registrar Carga
         </h1>
       </div>
-
-
-
-
-
-
-
 
 
 
@@ -33,4 +21,4 @@ const Transporte = () => {
   )
 }
 
-export default Transporte
+export default RegistroCarga

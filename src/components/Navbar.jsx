@@ -1,60 +1,42 @@
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.png'
 
 const Navbar = () => {
   const navigate = useNavigate()
-  const rol = localStorage.getItem('rol')
-  //const nombre = localStorage.getItem('nombre')
-  const location = useLocation()
-  const path = location.pathname
-
+  const nombre = localStorage.getItem('nombre') || 'Usuario'
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('rol')
+    localStorage.clear()
     navigate('/')
   }
 
-  const linkClass = (ruta) => {
-    const isActive = path === ruta
-    return `text-white text-lg px-3 py-1 rounded-md font-semibold ${
-      isActive ? 'border-b-2 border-white' : 'hover:bg-white/20 transition duration-200'
-    }`
-  }
-
-  const puedeVer = (modulo) => {
-    const accesos = {
-      administrador: ['recepcion', 'transporte', 'despacho', 'bultos', 'usuarios'],
-      operaciones: ['recepcion', 'transporte', 'despacho', 'bultos'],
-      atarama: ['transporte', 'despacho'],
-    }
-
-    return accesos[rol]?.includes(modulo)
-  }
-
   return (
-    <nav className="bg-gray-900 text-white flex items-center justify-between px-6 py-4 shadow">
-      <div className='flex items-center space-x-2'>
-        <img src={logo} alt="Logo" className="h-8" />
+    <nav className="relative bg-gray-900 text-white px-6 py-4 shadow-md flex items-center justify-between">
+
+      <div className="flex items-center space-x-3">
+        <img src={logo} alt="Logo" className="h-9" />
       </div>
 
-      <div className="flex-1 flex justify-center space-x-8">
-        {puedeVer('recepcion') && <a href="/recepcion" className={linkClass('/recepcion')}>Recepción</a>}
-        {puedeVer('transporte') && <a href="/transporte" className= {linkClass('/transporte')}>Transporte</a>}
-        {puedeVer('despacho') && <a href="/despacho" className={linkClass('/despacho')}>Despacho</a>}
-        {puedeVer('bultos') && <a href="/bultos" className={linkClass('/bultos')}>Bultos</a>}
-        {puedeVer('usuarios') && <a href="/usuarios" className={linkClass('/usuarios')}>Usuarios</a>}
+      <div className="absolute left-1/2 transform -translate-x-1/2">
+        <span className="text-3xl font-extrabold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent drop-shadow-sm tracking-wide uppercase">
+          APP TRAZABILIDAD
+        </span>
+
       </div>
 
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center gap-4">
+        <span className="hidden sm:flex items-center gap-1 text-sm text-white font-bold">
+          <span className="text-white font-medium">Bienvenido, {nombre}</span>
+        </span>
+
         <button
           onClick={handleLogout}
-          className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+          className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-2 px-4 rounded shadow transition duration-200"
         >
-          Cerrar Sesión
+          Cerrar sesión
         </button>
-      </div>
 
+      </div>
     </nav>
   )
 }

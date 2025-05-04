@@ -32,22 +32,15 @@ const Login = () => {
 
       // Guardar token y rol
       localStorage.setItem('token', data.token || 'temp-token')
-      localStorage.setItem('rol', data.rol)
+      localStorage.setItem('rol', data.rol.toLowerCase())
       localStorage.setItem('nombre', data.nombre)
 
-      // Redirigir según el rol
-      switch (data.rol) {
-        case 'administrador':
-        case 'operaciones':
-          navigate('/recepcion')
-          break
-        case 'atarama':
-          navigate('/transporte')
-          break
-        default:
-          navigate('/')
-      }
-
+      // Redirigir al usuario a un dashboard según su rol
+      if (data.rol === 'administrador') {
+        navigate('/admin-home')
+      } else {
+        navigate('/dashboard')
+      }      
 
     } catch (err) {
       setError(err.message)

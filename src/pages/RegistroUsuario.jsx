@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const Registro = () => {
+const RegistroUsuario = () => {
   const [form, setForm] = useState({
     nombre: '',
     apellido: '',
@@ -76,4 +76,4 @@ const Registro = () => {
   )
 }
 
-export default Registro
+export default RegistroUsuario
