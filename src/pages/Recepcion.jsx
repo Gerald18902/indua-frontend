@@ -2,6 +2,7 @@ import CargaModal from '../components/CargaModal';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Layout from '../components/Layout';
+import BotonVolver from '../components/BotonVolver'
 import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
 Chart.register(ArcElement, Tooltip, Legend);
 import ChartDataLabels from 'chartjs-plugin-datalabels';
@@ -115,9 +116,16 @@ function Recepcion() {
 
   return (
     <Layout>
-      <div className="min-h-screen flex flex-col items-center justify-start p-6 text-white">
-        <h1 className="text-3xl font-bold mb-6 mt-4">INGRESA UNA CARGA</h1>
 
+<div className="relative w-full max-w-5xl mx-auto mt-4 flex items-center justify-start">
+        <BotonVolver />
+        <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-white text-center">
+          Módulo de Recepción
+        </h1>
+      </div>
+
+
+      <div className="flex flex-col items-center justify-start p-6 text-white">
         <div className="bg-white text-black rounded-xl shadow-lg w-full max-w-5xl overflow-hidden">
           <div className="overflow-y-auto max-h-[400px]">
             <table className="table-auto min-w-full border">
