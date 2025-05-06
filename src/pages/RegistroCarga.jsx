@@ -47,8 +47,8 @@ function RegistroCarga() {
         <div className="bg-white text-black rounded-xl shadow-lg w-full max-w-5xl overflow-hidden">
           <div className="overflow-y-auto max-h-[400px]">
             <table className="min-w-full table-auto">
-              <thead>
-                <tr className="bg-black text-white text-sm uppercase tracking-wide text-center">
+            <thead className="sticky top-0 z-10 bg-black text-white text-sm uppercase tracking-wide text-center">
+                <tr>
                   <th className="px-6 py-3 text-center">Fecha de Carga</th>
                   <th className="px-6 py-3 text-center">Código de Carga</th>
                   <th className="px-6 py-3 text-center">Placa</th>
