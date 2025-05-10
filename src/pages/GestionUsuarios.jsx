@@ -70,41 +70,46 @@ const GestionUsuarios = () => {
         </h1>
       </div>
 
-      {/* Tabla de usuarios */}
-      <div className="mt-8 px-4 overflow-x-auto">
-        <table className="w-full table-auto text-sm text-white border-separate border-spacing-y-2">
-          <thead>
-            <tr className="bg-blue-600 text-white rounded">
-              <th className="px-4 py-2 text-left">Nombre Completo</th>
-              <th className="px-4 py-2 text-left">Usuario</th>
-              <th className="px-4 py-2 text-left">Rol</th>
-              <th className="px-4 py-2 text-left">Estado</th>
-              <th className="px-4 py-2 text-center">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {usuarios.map((user) => (
-              <tr key={user.id_usuario} className="bg-gray-800 rounded shadow">
-                <td className="px-4 py-2">{user.nombre} {user.apellido}</td>
-                <td className="px-4 py-2">{user.username}</td>
-                <td className="px-4 py-2 capitalize">{user.rol}</td>
-                <td className="px-4 py-2">{user.estado ? 'Activo' : 'Inactivo'}</td>
-                <td className="px-4 py-2 text-center">
-                  <button
-                    onClick={() => abrirModalEditar(user)}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-3 py-1 rounded"
-                  >
-                    Editar
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
 
-        {usuarios.length === 0 && (
-          <p className="text-center text-gray-300 mt-6">No hay usuarios registrados.</p>
-        )}
+      <div className="flex flex-col items-center justify-start p-6 text-white">
+        {/* Tabla de usuarios */}
+        <div className="bg-white text-black rounded-xl shadow-lg w-full max-w-5xl overflow-hidden">
+          <div className="overflow-y-auto max-h-[400px]">
+            <table className="table-auto min-w-full">
+              <thead className="sticky top-0 z-10 bg-black text-white text-sm uppercase tracking-wide text-center">
+                <tr>
+                  <th className="px-4 py-2 text-center">Nombre Completo</th>
+                  <th className="px-4 py-2 text-center">Usuario</th>
+                  <th className="px-4 py-2 text-center">Rol</th>
+                  <th className="px-4 py-2 text-center">Estado</th>
+                  <th className="px-4 py-2 text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {usuarios.map((user) => (
+                  <tr key={user.id_usuario} className='text-center'>
+                    <td className="px-4 py-2">{user.nombre} {user.apellido}</td>
+                    <td className="px-4 py-2">{user.username}</td>
+                    <td className="px-4 py-2 capitalize">{user.rol}</td>
+                    <td className="px-4 py-2">{user.estado ? 'Activo' : 'Inactivo'}</td>
+                    <td className="px-4 py-2 text-center">
+                      <button
+                        onClick={() => abrirModalEditar(user)}
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-3 py-1 rounded"
+                      >
+                        Editar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {usuarios.length === 0 && (
+              <p className="text-center text-gray-300 mt-6">No hay usuarios registrados.</p>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Botón agregar */}

@@ -48,10 +48,15 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-purple-800 to-orange-600 text-white">
+    <div className="relative min-h-screen bg-gray-900 overflow-hidden flex items-center justify-center">
+      {/* Blobs de fondo */}
+      <div className="absolute w-[600px] h-[600px] bg-gradient-to-r from-[#FF754B] to-[#5D4BFF] rounded-full blur-3xl opacity-30 top-[-150px] left-[-150px]" />
+      <div className="absolute w-[500px] h-[500px] bg-gradient-to-r from-[#5D4BFF] to-[#FF754B] rounded-full blur-3xl opacity-30 bottom-[-100px] right-[-100px]" />
+
+      {/* Formulario */}
       <form
         onSubmit={handleSubmit}
-        className="bg-gray-800 p-10 rounded-2xl shadow-lg w-full max-w-sm space-y-4"
+        className="relative z-10 bg-gray-800 p-10 rounded-2xl shadow-lg w-full max-w-sm space-y-4"
       >
         <div className="flex justify-center mb-4">
           <img src={logo} alt="ISL" className="h-10" />

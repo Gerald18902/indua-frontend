@@ -224,9 +224,7 @@ function Recepcion() {
         </div>
 
         <div className="bg-white text-black rounded-xl shadow-lg w-full max-w-5xl overflow-hidden">
-
           <div className="overflow-y-auto max-h-[400px]">
-
             <table className="table-auto min-w-full">
               <thead className="sticky top-0 z-10 bg-black text-white text-sm uppercase tracking-wide text-center">
                 <tr>
@@ -369,6 +367,9 @@ function Recepcion() {
         {mostrarReporte && (
           <ReporteRecepcionPDF
             codigoCarga={codigoParaReporte}
+            fechaCarga={
+              cargas.find(c => c.codigoCarga === codigoParaReporte)?.fechaCarga || ''
+            }
             idCarga={idCargaReporte}
             faltantesPorLocal={faltantesPorLocal}
             deterioradosPorLocal={deterioradosPorLocal}
@@ -377,6 +378,7 @@ function Recepcion() {
             }}
           />
         )}
+
       </div>
 
       {mostrarConfirmacion && (

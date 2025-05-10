@@ -5,6 +5,7 @@ import logo from '../assets/logo.png';
 
 const ReporteRecepcionPDF = ({
   codigoCarga = '',
+  fechaCarga = '',
   idCarga = null,
   faltantesPorLocal = {},
   deterioradosPorLocal = {},
@@ -53,10 +54,12 @@ const ReporteRecepcionPDF = ({
           }
         };
 
+const [anio, mes, dia] = fechaCarga.split('-');
+
         // Página 1: Bultos con problemas
         pdf.addImage(logoBase64, 'PNG', 15, 10, 30, 30);
         pdf.setFontSize(16);
-        pdf.text(`Reporte de Recepción - Carga ${codigoCarga}`, width / 2, 45, { align: 'center' });
+        pdf.text(`Reporte de Recepción - Carga ${codigoCarga} (${dia}-${mes}-${anio})`, width / 2, 45, { align: 'center' });
         y = 55;
 
         pdf.setFontSize(12);
@@ -92,7 +95,7 @@ const ReporteRecepcionPDF = ({
         pdf.addPage();
         pdf.addImage(logoBase64, 'PNG', 15, 10, 30, 30);
         pdf.setFontSize(16);
-        pdf.text(`Frecuencia de locales - Carga ${codigoCarga}`, width / 2, 45, { align: 'center' });
+        pdf.text(`Frecuencia de locales - Carga ${codigoCarga} (${dia}-${mes}-${anio})`, width / 2, 45, { align: 'center' });
         y = 55;
 
         pdf.setFontSize(12);
@@ -118,7 +121,7 @@ const ReporteRecepcionPDF = ({
             y += 5;
           });
 
-        pdf.save(`reporte_recepcion_${codigoCarga}_${new Date().toISOString().split('T')[0]}.pdf`);
+        pdf.save(`reporte_recepcion_${codigoCarga}_${dia}-${mes}-${anio}.pdf`);
         if (onRenderComplete) onRenderComplete();
       } catch (err) {
         console.error('Error al generar PDF:', err);
@@ -126,7 +129,7 @@ const ReporteRecepcionPDF = ({
     };
 
     generarPDF();
-  }, [codigoCarga, idCarga, faltantesPorLocal, deterioradosPorLocal, onRenderComplete]);
+  }, [codigoCarga, fechaCarga, idCarga, faltantesPorLocal, deterioradosPorLocal, onRenderComplete]);
 
   return null;
 };
