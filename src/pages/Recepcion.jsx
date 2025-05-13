@@ -80,8 +80,6 @@ function Recepcion() {
     return cargas.filter(c => cargasValidas.has(c.codigoCarga));
   }, [bultos, cargas]);
 
-
-
   const bultosFiltrados = bultos.filter(b => {
     if (!filtroFecha) return true; // si no hay filtro de fecha, muestra todo
     const carga = cargas.find(c => c.codigoCarga === b.codigoCarga);
@@ -171,7 +169,6 @@ function Recepcion() {
     }
   };
 
-
   return (
     <Layout>
 
@@ -254,8 +251,6 @@ function Recepcion() {
                       <td className="border px-4 py-2">{b.estadoRecepcion?.replace(/_/g, ' ')}</td>
                     </tr>
                   ))}
-
-
               </tbody>
             </table>
           </div>
@@ -294,7 +289,11 @@ function Recepcion() {
 
           <button
             className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded transition"
-            onClick={() => setModalReporteOpen(true)}
+            onClick={() => {
+              setModalReporteOpen(true);
+              setFechaSeleccionada('');
+              setCodigoSeleccionado('');
+            }}
           >
             Generar Reporte
           </button>

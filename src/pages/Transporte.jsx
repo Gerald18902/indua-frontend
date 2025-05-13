@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import axios from 'axios'
 import Layout from '../components/Layout'
 import BotonVolver from '../components/BotonVolver'
 import AsignarRutaModal from '../components/AsignarRutaModal'
 import VerLocalesModal from '../components/VerLocalesModal'
+import ReporteTransportePDF from '../components/ReporteTransportePDF';
+
 import { toast } from 'react-toastify';
 
 const Transporte = () => {
@@ -17,19 +19,25 @@ const Transporte = () => {
   const [modalLocalesOpen, setModalLocalesOpen] = useState(false)
   const [idRutaSeleccionada, setIdRutaSeleccionada] = useState(null)
 
+  const [modalGenerarReporteOpen, setModalGenerarReporteOpen] = useState(false);
+  const [fechaSeleccionada, setFechaSeleccionada] = useState('');
+  const [codigoSeleccionado, setCodigoSeleccionado] = useState('');
+  const [mostrarReporte, setMostrarReporte] = useState(false);
+  const [datosReporte, setDatosReporte] = useState(null);
+  const [cargasConRuta, setCargasConRuta] = useState([]);
 
-  const cargarRutas = () => {
-    const params = {}
-    if (filtroFecha) params.fecha = filtroFecha
-    if (filtroCodigoCarga) params.codigoCarga = filtroCodigoCarga
+  const cargarRutas = useCallback(() => {
+    const params = {};
+    if (filtroFecha) params.fecha = filtroFecha;
+    if (filtroCodigoCarga) params.codigoCarga = filtroCodigoCarga;
 
     axios.get('http://localhost:8080/api/rutas', { params })
       .then(res => setRutas(res.data || []))
       .catch(err => {
-        console.error('Error al cargar rutas:', err)
-        setRutas([])
-      })
-  }
+        console.error('Error al cargar rutas:', err);
+        setRutas([]);
+      });
+  }, [filtroFecha, filtroCodigoCarga]);
 
   const cargarCargas = () => {
     axios.get('http://localhost:8080/api/cargas')
@@ -52,13 +60,53 @@ const Transporte = () => {
       })
   }
 
+  const cargarCargasConRuta = () => {
+    axios.get('http://localhost:8080/api/rutas/cargas-con-ruta')
+      .then(res => {
+        const data = res.data || [];
+        const agrupadas = {};
+        data.forEach(c => {
+          if (!agrupadas[c.fechaCarga]) agrupadas[c.fechaCarga] = [];
+          agrupadas[c.fechaCarga].push(c);
+        });
+        setCargasPorFecha(agrupadas);
+        setFechasDisponibles(Object.keys(agrupadas).sort((a, b) => new Date(b) - new Date(a)));
+        setCargasConRuta(data);
+      })
+      .catch(err => {
+        console.error('Error al cargar cargas con ruta:', err);
+        setCargasConRuta([]);
+      });
+  };
+
+  const handleGenerarReporteTransporte = async () => {
+    try {
+      const carga = cargasPorFecha[fechaSeleccionada]?.find(c => c.codigoCarga === codigoSeleccionado);
+      if (!carga) return alert('Carga no encontrada');
+
+      const res = await axios.get(`http://localhost:8080/api/rutas/reporte-transporte/${carga.idCarga}`);
+      setDatosReporte(res.data);
+      setMostrarReporte(true);
+      setModalGenerarReporteOpen(false);
+    } catch (err) {
+      alert('Error al generar el reporte');
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     cargarCargas()
   }, [])
 
   useEffect(() => {
+    if (modalGenerarReporteOpen) {
+      cargarCargasConRuta();
+    }
+  }, [modalGenerarReporteOpen]);
+
+  useEffect(() => {
     cargarRutas()
-  }, [filtroFecha, filtroCodigoCarga])
+  }, [cargarRutas])
   return (
     <Layout>
       <div className="relative w-full max-w-5xl mx-auto mt-4 flex items-center justify-start">
@@ -150,17 +198,27 @@ const Transporte = () => {
           }}
         />
 
-        <div className="flex justify-center mt-6">
+        <div className="flex justify-center gap-4 mt-6">
           <button
             className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-6 rounded"
             onClick={() => setModalAsignarOpen(true)}
           >
             Asignar Ruta
           </button>
+
+          <button
+            className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded transition"
+            onClick={() => {
+              setModalGenerarReporteOpen(true);
+              setFechaSeleccionada('');
+              setCodigoSeleccionado('');
+            }}
+          >
+            Generar Reporte
+          </button>
         </div>
 
       </div>
-
 
       <VerLocalesModal
         isOpen={modalLocalesOpen}
@@ -168,9 +226,74 @@ const Transporte = () => {
         idRuta={idRutaSeleccionada}
       />
 
+      {modalGenerarReporteOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="relative bg-gray-900 text-white rounded-xl shadow-lg w-[90%] max-w-md p-8">
+            <button
+              onClick={() => setModalGenerarReporteOpen(false)}
+              className="absolute top-3 right-3 text-white text-2xl font-bold hover:text-red-500"
+            >
+              &times;
+            </button>
+
+            <div className="flex flex-col items-center mb-6">
+              <h2 className="text-xl font-bold text-green-400">Selecciona Carga</h2>
+            </div>
+
+            <label className="block text-sm mb-1">Fecha de carga:</label>
+            <select
+              className="w-full bg-gray-800 px-4 py-2 mb-4 rounded"
+              value={fechaSeleccionada}
+              onChange={(e) => {
+                setFechaSeleccionada(e.target.value);
+                setCodigoSeleccionado('');
+              }}
+            >
+              <option value="">-- Selecciona una fecha --</option>
+              {fechasDisponibles.map((f, i) => (
+                <option key={i} value={f}>{f}</option>
+              ))}
+            </select>
+
+            <label className="block text-sm mb-1">Código de carga:</label>
+            <select
+              className="w-full bg-gray-800 px-4 py-2 mb-6 rounded"
+              value={codigoSeleccionado}
+              onChange={(e) => setCodigoSeleccionado(e.target.value)}
+              disabled={!fechaSeleccionada}
+            >
+              <option value="">-- Selecciona un código --</option>
+              {fechaSeleccionada &&
+                cargasConRuta
+                  .filter(c => c.fechaCarga === fechaSeleccionada)
+                  .sort((a, b) => a.codigoCarga.localeCompare(b.codigoCarga))
+                  .map((c, i) => (
+                    <option key={i} value={c.codigoCarga}>{c.codigoCarga}</option>
+                  ))}
+            </select>
+
+            <div className="flex justify-center">
+              <button
+                className="bg-green-400 text-black font-bold py-2 px-6 rounded hover:bg-green-500"
+                disabled={!codigoSeleccionado}
+                onClick={handleGenerarReporteTransporte}
+              >
+                Generar
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {mostrarReporte && datosReporte && (
+        <ReporteTransportePDF
+          datos={datosReporte}
+          onRenderComplete={() => setMostrarReporte(false)}
+        />
+      )}
+
     </Layout>
-
-
   )
 }
 

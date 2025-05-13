@@ -121,8 +121,6 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
               setPaso(1);
               setMensajePendientes('Aún quedan locales sin asignar. Continúa creando rutas.');
 
-
-
               // Refrescar unidades disponibles
               axios.get('http://localhost:8080/api/rutas/unidades-transporte')
                 .then(res => {
@@ -136,9 +134,6 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
                       setUnidadesTransporte(disponibles);
                     });
                 });
-
-
-
               setBloquearCarga(true);
             } else {
               // Ya no quedan locales pendientes → recargar lista de cargas disponibles
@@ -191,7 +186,6 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
         >
           &times;
         </button>
-
 
 
         {paso === 1 ? (
