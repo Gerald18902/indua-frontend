@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify'
 import Layout from '../components/Layout';
 import BotonVolver from '../components/BotonVolver'
 
@@ -29,6 +30,9 @@ function Recepcion() {
   const [codigoSeleccionado, setCodigoSeleccionado] = useState('');
   const [fechasDisponibles, setFechasDisponibles] = useState([]);
   const [cargasPorFecha, setCargasPorFecha] = useState({});
+
+  const [mostrarModalTerminar, setMostrarModalTerminar] = useState(false);
+
 
   useEffect(() => {
     cargarBultos();
@@ -79,6 +83,10 @@ function Recepcion() {
 
     return cargas.filter(c => cargasValidas.has(c.codigoCarga));
   }, [bultos, cargas]);
+
+  const cargaCompleta = useMemo(() => {
+    return cargasSinNulos.some(c => c.codigoCarga === filtroCodigoCarga);
+  }, [cargasSinNulos, filtroCodigoCarga]);
 
   const bultosFiltrados = bultos.filter(b => {
     if (!filtroFecha) return true; // si no hay filtro de fecha, muestra todo
@@ -161,11 +169,27 @@ function Recepcion() {
         codigoCarga: filtroCodigoCarga,
       });
 
-      alert('Carga completada con éxito');
+      toast.success('Carga completada con éxito');
       cargarBultos(); // refrescar tabla
     } catch (error) {
       alert('Hubo un error al completar la carga');
       console.error(error);
+    }
+  };
+
+  const handleTerminarCarga = async () => {
+    try {
+      await axios.put('http://localhost:8080/api/bultos/terminar-carga', {
+        codigoCarga: filtroCodigoCarga,
+      });
+
+      toast.success('Carga terminada con éxito');
+      cargarBultos();
+    } catch (error) {
+      alert('Error al terminar la carga');
+      console.error(error);
+    } finally {
+      setMostrarModalTerminar(false);
     }
   };
 
@@ -219,6 +243,57 @@ function Recepcion() {
             </div>
           )}
         </div>
+
+
+
+        {filtroFecha && filtroCodigoCarga && (
+          <div className="w-full max-w-5xl flex justify-start mb-4">
+            <div className="flex flex-col">
+              <label className="text-sm text-white mb-1">Escanear código de bulto:</label>
+              <input
+                type="text"
+                className={`px-4 py-2 rounded ${cargaCompleta ? 'bg-gray-600 cursor-not-allowed' : 'bg-gray-800'} text-white`}
+                placeholder="Ej: BANSA1234567890"
+                disabled={cargaCompleta}
+                onKeyDown={async (e) => {
+                  if (cargaCompleta) return;
+                  if (e.key === 'Enter') {
+                    const codigo = e.target.value.trim().toUpperCase();
+                    const regex = /^BANSA\d{10}$/;
+
+                    if (!regex.test(codigo)) {
+                      toast.error(`Formato de código inválido`);
+                      return;
+                    }
+
+                    try {
+                      await axios.put(`http://localhost:8080/api/bultos/actualizar-estado`, {
+                        codigoBulto: codigo,
+                        nuevoEstado: 'EN_BUEN_ESTADO',
+                      });
+
+                      toast.success(`Estado del bulto ${codigo} actualizado a EN BUEN ESTADO`);
+                      e.target.value = '';
+                      cargarBultos();
+                    } catch (error) {
+                      alert('Error al actualizar el estado del bulto');
+                      console.error(error);
+                    }
+                  }
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+
+
+
+
+
+
+
+
 
         <div className="bg-white text-black rounded-xl shadow-lg w-full max-w-5xl overflow-hidden">
           <div className="overflow-y-auto max-h-[400px]">
@@ -411,6 +486,59 @@ function Recepcion() {
           </div>
         </div>
       )}
+
+
+
+
+
+
+      <div className="flex justify-center mt-4">
+        <button
+          className={`${filtroFecha && filtroCodigoCarga && !cargaCompleta
+            ? 'bg-red-500 hover:bg-red-600 cursor-pointer'
+            : 'bg-gray-400 cursor-not-allowed'
+            } text-white font-bold py-2 px-6 rounded transition`}
+          onClick={() => setMostrarModalTerminar(true)}
+          disabled={!(filtroFecha && filtroCodigoCarga && !cargaCompleta)}
+        >
+          Terminar Carga
+        </button>
+      </div>
+
+
+
+      {mostrarModalTerminar && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="relative bg-gray-900 text-white p-6 rounded-xl shadow-xl w-[90%] max-w-sm">
+            <button
+              onClick={() => setMostrarModalTerminar(false)}
+              className="absolute top-3 right-3 text-white text-xl font-bold hover:text-red-500"
+            >
+              &times;
+            </button>
+
+            <h2 className="text-lg font-bold mb-6 text-red-400 text-center">¿Deseas terminar esta carga?</h2>
+            <p className="text-sm text-center mb-4">Los bultos sin estado serán marcados como <strong>FALTANTE</strong>.</p>
+            <div className="flex justify-center gap-4">
+              <button
+                className="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded font-bold"
+                onClick={handleTerminarCarga}
+              >
+                Sí, terminar
+              </button>
+              <button
+                className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded font-bold"
+                onClick={() => setMostrarModalTerminar(false)}
+              >
+                No, cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+
 
     </Layout>
   );
