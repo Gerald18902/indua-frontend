@@ -22,10 +22,10 @@ const VerLocalesModal = ({ isOpen, onClose, idRuta }) => {
 
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-gray-900 text-white p-6 rounded-xl w-[90%] max-w-md relative">
+      <div className="bg-white dark:bg-gray-900 text-black dark:text-white transition-colors p-6 rounded-xl w-[90%] max-w-md relative">
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-2xl font-bold text-white hover:text-red-500"
+          className="absolute top-3 right-3 text-2xl font-bold text-black dark:text-white hover:text-red-500"
         >
           &times;
         </button>
@@ -33,7 +33,7 @@ const VerLocalesModal = ({ isOpen, onClose, idRuta }) => {
         <h2 className="text-xl font-bold mb-4 text-green-400 text-center">Locales de la Ruta</h2>
 
         {locales.length === 0 ? (
-          <p className="text-center">No se encontraron locales asignados.</p>
+          <p className="text-center text-black dark:text-white">No se encontraron locales asignados.</p>
         ) : (
           <ol className="pl-2 space-y-1 max-h-64 overflow-y-auto list-none">
             {locales.map((local, index) => (

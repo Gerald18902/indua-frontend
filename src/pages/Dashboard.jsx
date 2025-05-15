@@ -1,6 +1,36 @@
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 
+const PasoCard = ({ index, paso, onClick }) => (
+  <div
+    onClick={onClick}
+    role="button"
+    tabIndex={0}
+    onKeyDown={(e) => { if (e.key === 'Enter') onClick() }}
+    className="cursor-pointer bg-gray-100 dark:bg-gray-800 text-black dark:text-white p-6 rounded-2xl shadow-md flex flex-col items-center text-center w-64 transition-colors hover:ring-2 hover:ring-blue-400"
+  >
+    <div className="text-blue-500 dark:text-blue-400 font-bold text-lg mb-1">Paso {index}</div>
+    <div className="text-5xl mb-2">{paso.icon}</div>
+    <h2 className="text-xl font-semibold mb-2">{paso.title}</h2>
+    <p className="text-sm text-gray-700 dark:text-gray-300">{paso.description}</p>
+  </div>
+)
+
+const Flecha = () => (
+  <svg
+    width="32"
+    height="32"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="mx-2 text-black dark:text-white transition"
+  >
+    <path d="M0 16h24l-6-6m6 6l-6 6" />
+  </svg>
+)
+
 const Dashboard = () => {
   const navigate = useNavigate()
   const rol = localStorage.getItem('rol')?.toLowerCase() || ''
@@ -49,62 +79,32 @@ const Dashboard = () => {
   return (
     <Layout>
       <div className="flex flex-col items-center justify-center">
-
         <div className="flex flex-col items-center gap-12">
 
           {/* Pasos principales con flechas */}
           <div className="flex items-center gap-4 flex-wrap justify-center">
             {pasosSuperiores.map((step, index) => (
               <div key={index} className="flex items-center gap-4">
-                <div className="bg-gray-800 p-6 rounded-2xl shadow-md flex flex-col items-center text-center text-white w-64">
-                  <div className="text-blue-400 font-bold text-lg mb-1">Paso {index + 1}</div>
-                  <div className="text-5xl mb-2">{step.icon}</div>
-                  <h2 className="text-xl font-semibold mb-2 text-white">{step.title}</h2>
-                  <p className="text-sm text-gray-300 mb-4">{step.description}</p>
-                  <button
-                    onClick={() => navigate(step.path)}
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                  >
-                    Ir al módulo
-                  </button>
-                </div>
-
-                {/* Flecha entre pasos visibles */}
-                {index !== pasosSuperiores.length - 1 && (
-                  <svg
-                    width="32"
-                    height="32"
-                    fill="none"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="mx-2"
-                  >
-                    <path d="M0 16h24l-6-6m6 6l-6 6" />
-                  </svg>
-                )}
+                <PasoCard
+                  index={index + 1}
+                  paso={step}
+                  onClick={() => navigate(step.path)}
+                />
+                {index !== pasosSuperiores.length - 1 && <Flecha />}
               </div>
             ))}
           </div>
 
+          {/* Paso inferior */}
           {mostrarPasoInferior && (
             <div className="mt-2">
-              <div className="bg-gray-800 p-6 rounded-2xl shadow-md flex flex-col items-center text-center text-white w-64 mx-auto">
-                <div className="text-blue-400 font-bold text-lg mb-1">Paso {pasosSuperiores.length + 1}</div>
-                <div className="text-5xl mb-2">{steps[3].icon}</div>
-                <h2 className="text-xl font-semibold mb-2 text-white">{steps[3].title}</h2>
-                <p className="text-sm text-gray-300 mb-4">{steps[3].description}</p>
-                <button
-                  onClick={() => navigate(steps[3].path)}
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                >
-                  Ir al módulo
-                </button>
-              </div>
+              <PasoCard
+                index={pasosSuperiores.length + 1}
+                paso={steps[3]}
+                onClick={() => navigate(steps[3].path)}
+              />
             </div>
           )}
-
         </div>
       </div>
     </Layout>

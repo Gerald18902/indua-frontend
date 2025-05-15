@@ -65,7 +65,7 @@ const GestionUsuarios = () => {
       {/* Encabezado */}
       <div className="relative w-full max-w-5xl mx-auto mt-4 flex items-center justify-start">
         <BotonVolver />
-        <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-white text-center">
+        <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-black dark:text-white text-center">
           Gestión de Usuarios
         </h1>
       </div>
@@ -125,14 +125,14 @@ const GestionUsuarios = () => {
       {/* Modal */}
       {modalAbierto && createPortal(
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-gray-900 p-6 rounded-lg shadow-lg w-full max-w-lg relative">
+          <div className="bg-white dark:bg-gray-900 text-black dark:text-white p-6 rounded-lg shadow-lg w-full max-w-lg relative transition-colors duration-300">
             <button
               onClick={cerrarModal}
-              className="absolute top-2 right-3 text-white text-xl font-bold hover:text-red-400"
+              className="absolute top-2 right-3 text-black dark:text-white text-xl font-bold hover:text-red-500 transition"
             >
               ✕
             </button>
-            <h2 className="text-white text-2xl font-bold mb-4 text-center">
+            <h2 className="text-black dark:text-white text-2xl font-bold mb-4 text-center">
               {usuarioEditar ? 'Editar Usuario' : 'Nuevo Usuario'}
             </h2>
             <FormularioUsuario

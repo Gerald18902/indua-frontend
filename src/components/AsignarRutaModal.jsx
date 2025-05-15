@@ -21,7 +21,6 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
 
   const tienePendientes = mensajePendientes !== '';
 
-
   useEffect(() => {
     if (isOpen) {
       axios.get('http://localhost:8080/api/rutas/cargas-disponibles')
@@ -57,7 +56,6 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
     }
   }, [idCargaSeleccionada, codigoCargaSeleccionada]);
 
-
   const handleDragEnd = (result) => {
     if (!result.destination) return;
     const items = Array.from(localesSeleccionados);
@@ -65,7 +63,6 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
     items.splice(result.destination.index, 0, moved);
     setLocalesSeleccionados(items);
   };
-
 
   const handleIrAConfirmacion = () => {
     if (!idCargaSeleccionada || !idUnidadSeleccionada || localesSeleccionados.length === 0) {
@@ -89,7 +86,6 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
     setLocalesDescartados(prev => prev.filter(l => l.idLocal !== local.idLocal));
     setLocalesSeleccionados(prev => [...prev, local]);
   };
-
 
   const handleConfirmarRuta = () => {
     const payload = {
@@ -148,9 +144,7 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
                   onClose(); // cierra el modal
                 });
             }
-
           });
-
       })
       .catch(err => {
         console.error('Error al asignar ruta:', err);
@@ -162,7 +156,7 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
 
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-gray-900 text-white p-6 rounded-xl w-[90%] max-w-2xl relative">
+      <div className="bg-white dark:bg-gray-900 text-black dark:text-white transition-colors p-6 rounded-xl w-[90%] max-w-2xl relative">
         <button
           onClick={() => {
             if (tienePendientes) {
@@ -180,13 +174,12 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
             setBloquearCarga(false);
             onClose();
           }}
-          className={`absolute top-3 right-3 text-2xl font-bold ${tienePendientes ? 'text-gray-500 cursor-not-allowed' : 'text-white hover:text-red-500'
+          className={`absolute top-3 right-3 text-2xl font-bold ${tienePendientes ? 'text-gray-500 cursor-not-allowed' : 'text-black dark:text-white hover:text-red-500'
             }`}
           disabled={tienePendientes}
         >
           &times;
         </button>
-
 
         {paso === 1 ? (
           <>
@@ -201,7 +194,7 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
             <div className="mb-4">
               <label className="block text-sm mb-1">Carga:</label>
               <select
-                className="w-full bg-gray-800 px-4 py-2 rounded"
+                className="w-full bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 rounded transition-colors"
                 value={idCargaSeleccionada}
                 onChange={e => {
                   const id = e.target.value;
@@ -224,7 +217,7 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
             <div className="mb-4">
               <label className="block text-sm mb-1">Unidad de transporte:</label>
               <select
-                className="w-full bg-gray-800 px-4 py-2 rounded"
+                className="w-full bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 rounded transition-colors"
                 value={idUnidadSeleccionada}
                 onChange={e => setIdUnidadSeleccionada(e.target.value)}
               >
@@ -239,7 +232,7 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
               {/* Seleccionados */}
               <div>
                 <label className="block text-sm mb-1">Locales seleccionados:</label>
-                <div className="bg-gray-800 rounded p-2 max-h-40 overflow-y-auto">
+                <div className="bg-gray-100 dark:bg-gray-800 text-black dark:text-white transition-colors rounded p-2 max-h-40 overflow-y-auto">
                   <DragDropContext onDragEnd={handleDragEnd}>
                     <Droppable droppableId="localesSeleccionados">
                       {(provided) => (
@@ -251,7 +244,7 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
                                   ref={prov.innerRef}
                                   {...prov.draggableProps}
                                   {...prov.dragHandleProps}
-                                  className="bg-gray-700 text-white p-2 mb-1 rounded shadow cursor-move flex justify-between"
+                                  className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-400 transition-colors p-2 mb-1 rounded shadow cursor-move flex justify-between"
                                 >
                                   <span>{local.nombre} ({local.codigo})</span>
                                   <button
@@ -276,7 +269,7 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
               {/* Descartados */}
               <div>
                 <label className="block text-sm mb-1">Locales descartados:</label>
-                <div className="bg-gray-700 text-gray-400 p-2 rounded max-h-40 overflow-y-auto">
+                <div className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-400 transition-colors p-2 rounded max-h-40 overflow-y-auto">
                   {localesDescartados.map((local, index) => (
                     <div key={index} className="flex justify-between items-center mb-1">
                       <span>{local.nombre} ({local.codigo})</span>
@@ -294,7 +287,6 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
               </div>
             </div>
 
-
             <div className="flex justify-center">
               <button
                 className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-6 rounded"
@@ -311,7 +303,7 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
             <div className="mb-4">
               <label className="block text-sm mb-1">Comentario (opcional):</label>
               <textarea
-                className="w-full bg-gray-800 px-4 py-2 rounded"
+                className="w-full bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 rounded transition-colors"
                 rows="2"
                 value={comentario}
                 onChange={e => setComentario(e.target.value)}

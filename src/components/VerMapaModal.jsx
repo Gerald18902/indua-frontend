@@ -5,7 +5,6 @@ import L from 'leaflet';
 
 import 'leaflet/dist/leaflet.css';
 
-// Fix de icono para Leaflet en React
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -37,16 +36,16 @@ const VerMapaModal = ({ idRuta, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white rounded-xl p-4 w-[95%] max-w-4xl relative">
+      <div className="bg-white dark:bg-gray-900 text-black dark:text-white transition-colors rounded-xl p-4 w-[95%] max-w-4xl relative">
         <button
           onClick={onClose}
-          className="absolute top-2 right-4 text-2xl font-bold text-black hover:text-red-600"
+          className="absolute top-2 right-4 text-2xl font-bold text-black dark:text-white hover:text-red-600"
         >
           &times;
         </button>
 
         <h2 className="text-xl font-bold text-center mb-2">Mapa de la Ruta</h2>
-        <p className="text-sm text-center text-gray-600 mb-4">
+        <p className="text-sm text-center text-gray-700 dark:text-gray-300 mb-4">
           Unidad: <strong>{ruta.placa}</strong> {ruta.comentario && `– ${ruta.comentario}`}
         </p>
 

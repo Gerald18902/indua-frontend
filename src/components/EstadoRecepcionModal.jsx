@@ -19,7 +19,7 @@ function EstadoRecepcionModal({ isOpen, onClose, onActualizado }) {
       setNuevoEstado('');
 
       onActualizado();
-      setMostrarPregunta(true); // Mostrar solo la pregunta
+      setMostrarPregunta(true);
     } catch (err) {
       alert('Error al actualizar estado del bulto');
       console.error(err);
@@ -30,31 +30,30 @@ function EstadoRecepcionModal({ isOpen, onClose, onActualizado }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="relative bg-gray-900 text-white p-6 rounded-xl shadow-xl w-[90%] max-w-sm">
+      <div className="relative bg-white dark:bg-gray-900 text-black dark:text-white transition-colors p-6 rounded-xl shadow-xl w-[90%] max-w-sm">
 
-        {/* Botón de cierre (equis) */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-white text-xl font-bold hover:text-red-500"
+          className="absolute top-3 right-3 text-black dark:text-white text-xl font-bold hover:text-red-500"
         >
           &times;
         </button>
 
         {!mostrarPregunta ? (
           <>
-            <h2 className="text-lg font-bold mb-4 text-green-400">Editar Estado del Bulto</h2>
+            <h2 className="text-lg font-bold mb-4 text-green-500 dark:text-green-400">Editar Estado del Bulto</h2>
 
             <label className="block mb-2">Código del bulto:</label>
             <input
               type="text"
-              className="w-full px-4 py-2 mb-4 rounded bg-gray-800 text-white"
+              className="w-full px-4 py-2 mb-4 rounded bg-gray-100 dark:bg-gray-800 text-black dark:text-white transition-colors"
               value={codigoBulto}
               onChange={(e) => setCodigoBulto(e.target.value.toUpperCase())}
             />
 
             <label className="block mb-2">Nuevo estado de recepción:</label>
             <select
-              className="w-full px-4 py-2 mb-6 rounded bg-gray-800 text-white"
+              className="w-full px-4 py-2 mb-6 rounded bg-gray-100 dark:bg-gray-800 text-black dark:text-white transition-colors"
               value={nuevoEstado}
               onChange={(e) => setNuevoEstado(e.target.value)}
             >
@@ -67,7 +66,7 @@ function EstadoRecepcionModal({ isOpen, onClose, onActualizado }) {
             <div className="flex justify-center mt-4">
               <button
                 onClick={handleActualizar}
-                className="bg-green-500 hover:bg-green-600 px-6 py-2 rounded font-bold"
+                className="bg-green-500 hover:bg-green-600 px-6 py-2 rounded font-bold text-white"
               >
                 Actualizar
               </button>

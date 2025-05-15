@@ -22,19 +22,19 @@ const FormularioUsuario = ({ initialData = {}, onSubmit }) => {
   const handleSubmit = (e) => {
     e.preventDefault()
     const dataToSend = { ...form }
-    if (isEdit) delete dataToSend.password // no enviar password si es edición
+    if (isEdit) delete dataToSend.password
     onSubmit(dataToSend)
   }
 
   return (
-    <form onSubmit={handleSubmit} className="text-white space-y-4">
+    <form onSubmit={handleSubmit} className="text-black dark:text-white space-y-4">
       <div className="flex gap-4">
         <input
           name="nombre"
           placeholder="Nombre"
           value={form.nombre}
           onChange={handleChange}
-          className="w-1/2 px-3 py-2 rounded bg-gray-700 focus:outline-none"
+          className="w-1/2 px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 text-black dark:text-white focus:outline-none"
           required
         />
         <input
@@ -42,7 +42,7 @@ const FormularioUsuario = ({ initialData = {}, onSubmit }) => {
           placeholder="Apellido"
           value={form.apellido}
           onChange={handleChange}
-          className="w-1/2 px-3 py-2 rounded bg-gray-700 focus:outline-none"
+          className="w-1/2 px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 text-black dark:text-white focus:outline-none"
           required
         />
       </div>
@@ -52,7 +52,7 @@ const FormularioUsuario = ({ initialData = {}, onSubmit }) => {
         placeholder="Nombre de usuario"
         value={form.username}
         onChange={handleChange}
-        className="w-full px-3 py-2 rounded bg-gray-700 focus:outline-none"
+        className="w-full px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 text-black dark:text-white focus:outline-none"
         required
       />
 
@@ -63,7 +63,7 @@ const FormularioUsuario = ({ initialData = {}, onSubmit }) => {
           placeholder="Contraseña"
           value={form.password}
           onChange={handleChange}
-          className="w-full px-3 py-2 rounded bg-gray-700 focus:outline-none"
+          className="w-full px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 text-black dark:text-white focus:outline-none"
           required
         />
       )}
@@ -72,7 +72,7 @@ const FormularioUsuario = ({ initialData = {}, onSubmit }) => {
         name="rol"
         value={form.rol}
         onChange={handleChange}
-        className="w-full px-3 py-2 rounded bg-gray-700 focus:outline-none"
+        className="w-full px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 text-black dark:text-white focus:outline-none"
       >
         <option value="administrador">Administrador</option>
         <option value="operaciones">Personal de Operaciones</option>
@@ -86,13 +86,15 @@ const FormularioUsuario = ({ initialData = {}, onSubmit }) => {
           onChange={(e) =>
             setForm({ ...form, estado: e.target.value === 'true' })
           }
-          className="w-full px-3 py-2 rounded bg-gray-700 focus:outline-none"
+          className="w-full px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 text-black dark:text-white focus:outline-none"
         >
           <option value="true">Activo</option>
           <option value="false">Inactivo</option>
         </select>
       ) : (
-        <div className="text-sm text-gray-400">Estado: <span className="text-green-400 font-semibold">Activo</span></div>
+        <div className="text-sm text-gray-600 dark:text-gray-400">
+          Estado: <span className="text-green-600 dark:text-green-400 font-semibold">Activo</span>
+        </div>
       )}
 
       <button

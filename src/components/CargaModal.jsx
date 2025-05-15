@@ -97,20 +97,22 @@ function CargaModal({ isOpen, onClose, onCargaRegistrada }) {
 
   if (!isOpen) return null
 
+  // ...imports
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="relative bg-gray-900 text-white rounded-xl shadow-lg w-[90%] max-w-md p-8">
+      <div className="relative bg-white dark:bg-gray-900 text-black dark:text-white rounded-xl shadow-lg w-[90%] max-w-md p-8 transition-colors">
 
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-white text-2xl font-bold hover:text-red-500"
+          className="absolute top-3 right-3 text-black dark:text-white text-2xl font-bold hover:text-red-500"
         >
           &times;
         </button>
 
         <div className="flex flex-col items-center">
-          <FaTruckMoving className="text-4xl text-white mb-3" />
-          <h2 className="text-xl font-bold text-green-400 mb-6">Datos de la nueva carga</h2>
+          <FaTruckMoving className="text-4xl text-black dark:text-white mb-3" />
+          <h2 className="text-xl font-bold text-green-600 dark:text-green-400 mb-6">Datos de la nueva carga</h2>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -119,7 +121,7 @@ function CargaModal({ isOpen, onClose, onCargaRegistrada }) {
             name="fechaCarga"
             value={form.fechaCarga}
             onChange={handleChange}
-            className="bg-gray-800 px-4 py-2 rounded"
+            className="bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 rounded"
             required
             min={getMinDate()}
             max={getMaxDate()}
@@ -131,7 +133,7 @@ function CargaModal({ isOpen, onClose, onCargaRegistrada }) {
             value={form.codigoCarga}
             onChange={handleChange}
             placeholder="Código de la carga"
-            className="bg-gray-800 px-4 py-2 rounded"
+            className="bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 rounded"
             required
           />
           <input
@@ -140,7 +142,7 @@ function CargaModal({ isOpen, onClose, onCargaRegistrada }) {
             value={form.placaCarreta}
             onChange={handleChange}
             placeholder="Placa de la Carreta"
-            className="bg-gray-800 px-4 py-2 rounded"
+            className="bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 rounded"
             required
           />
 
@@ -148,7 +150,7 @@ function CargaModal({ isOpen, onClose, onCargaRegistrada }) {
             name="duenoCarreta"
             value={form.duenoCarreta}
             onChange={handleChange}
-            className="bg-gray-800 px-4 py-2 rounded"
+            className="bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 rounded"
             required
           >
             <option value="">Selecciona el dueño</option>
@@ -156,9 +158,8 @@ function CargaModal({ isOpen, onClose, onCargaRegistrada }) {
             <option value="TERCERO">TERCERO</option>
           </select>
 
-
-          <label className="flex flex-col items-center px-4 py-6 bg-gray-800 text-white rounded-lg shadow-md tracking-wide uppercase border border-dashed border-gray-400 cursor-pointer hover:bg-gray-700">
-            <FaFileExcel className="w-10 h-10 text-green-400" />
+          <label className="flex flex-col items-center px-4 py-6 bg-gray-100 dark:bg-gray-800 text-black dark:text-white rounded-lg shadow-md tracking-wide uppercase border border-dashed border-gray-400 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700">
+            <FaFileExcel className="w-10 h-10 text-green-500 dark:text-green-400" />
             <span className="mt-2 text-base leading-normal">
               {file ? file.name : 'Selecciona un archivo excel'}
             </span>
@@ -167,12 +168,10 @@ function CargaModal({ isOpen, onClose, onCargaRegistrada }) {
               accept=".xlsx"
               onChange={e => setFile(e.target.files[0])}
               className="hidden"
-            //required
             />
           </label>
 
           <div className="flex justify-center mt-4">
-
             <button
               type="submit"
               className="bg-green-400 text-black font-bold py-2 px-6 rounded hover:bg-green-500"
@@ -186,7 +185,6 @@ function CargaModal({ isOpen, onClose, onCargaRegistrada }) {
               ) : null}
               {isSubmitting ? 'Registrando...' : 'Registrar'}
             </button>
-
           </div>
         </form>
       </div>

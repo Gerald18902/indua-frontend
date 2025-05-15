@@ -198,17 +198,17 @@ function Recepcion() {
 
       <div className="relative w-full max-w-5xl mx-auto mt-4 flex items-center justify-start">
         <BotonVolver />
-        <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-white text-center">
+        <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-black dark:text-white text-center">
           Módulo de Recepción
         </h1>
       </div>
 
-      <div className="flex flex-col items-center justify-start p-6 text-white">
+      <div className="flex flex-col items-center justify-start p-6 text-black dark:text-white transition-colors">
         <div className="flex flex-wrap gap-4 mb-4">
           <div>
-            <label className="block text-sm mb-1">Filtrar por fecha:</label>
+            <label className="block text-black dark:text-white text-sm mb-1">Filtrar por fecha:</label>
             <select
-              className="bg-gray-800 text-white px-4 py-2 rounded"
+              className="bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 rounded transition-colors"
               value={filtroFecha}
               onChange={e => {
                 setFiltroFecha(e.target.value);
@@ -224,9 +224,9 @@ function Recepcion() {
 
           {filtroFecha && (
             <div>
-              <label className="block text-sm mb-1">Filtrar por código de carga:</label>
+              <label className="block text-black dark:text-white text-sm mb-1">Filtrar por código de carga:</label>
               <select
-                className="bg-gray-800 text-white px-4 py-2 rounded"
+                className="bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 rounded transition-colors"
                 value={filtroCodigoCarga}
                 onChange={e => setFiltroCodigoCarga(e.target.value)}
               >
@@ -244,15 +244,16 @@ function Recepcion() {
           )}
         </div>
 
-
-
         {filtroFecha && filtroCodigoCarga && (
           <div className="w-full max-w-5xl flex justify-start mb-4">
             <div className="flex flex-col">
-              <label className="text-sm text-white mb-1">Escanear código de bulto:</label>
+              <label className="text-sm text-black dark:text-white mb-1">Escanear código de bulto:</label>
               <input
                 type="text"
-                className={`px-4 py-2 rounded ${cargaCompleta ? 'bg-gray-600 cursor-not-allowed' : 'bg-gray-800'} text-white`}
+                className={`px-4 py-2 rounded transition-colors ${cargaCompleta
+                  ? 'bg-gray-300 dark:bg-gray-600 text-black dark:text-white cursor-not-allowed'
+                  : 'bg-gray-100 dark:bg-gray-800 text-black dark:text-white'
+                  }`}
                 placeholder="Ej: BANSA1234567890"
                 disabled={cargaCompleta}
                 onKeyDown={async (e) => {
@@ -285,15 +286,6 @@ function Recepcion() {
             </div>
           </div>
         )}
-
-
-
-
-
-
-
-
-
 
         <div className="bg-white text-black rounded-xl shadow-lg w-full max-w-5xl overflow-hidden">
           <div className="overflow-y-auto max-h-[400px]">
@@ -376,11 +368,11 @@ function Recepcion() {
 
         {modalReporteOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="relative bg-gray-900 text-white rounded-xl shadow-lg w-[90%] max-w-md p-8">
+            <div className="relative bg-white dark:bg-gray-900 text-black dark:text-white transition-colors rounded-xl shadow-lg w-[90%] max-w-md p-8">
 
               <button
                 onClick={() => setModalReporteOpen(false)}
-                className="absolute top-3 right-3 text-white text-2xl font-bold hover:text-red-500"
+                className="absolute top-3 right-3 text-black dark:text-white text-xl font-bold hover:text-red-500"
               >
                 &times;
               </button>
@@ -391,7 +383,7 @@ function Recepcion() {
 
               <label className="block text-sm mb-1">Fecha de carga:</label>
               <select
-                className="w-full bg-gray-800 px-4 py-2 mb-4 rounded"
+                className="w-full bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 mb-4 rounded transition-colors"
                 value={fechaSeleccionada}
                 onChange={(e) => {
                   setFechaSeleccionada(e.target.value);
@@ -407,7 +399,7 @@ function Recepcion() {
               <label className="block text-sm mb-1">Código de carga:</label>
 
               <select
-                className="w-full bg-gray-800 px-4 py-2 mb-6 rounded disabled:opacity-50"
+                className="w-full bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 mb-4 rounded transition-colors"
                 value={codigoSeleccionado}
                 onChange={(e) => setCodigoSeleccionado(e.target.value)}
                 disabled={!fechaSeleccionada}
@@ -452,15 +444,14 @@ function Recepcion() {
             }}
           />
         )}
-
       </div>
 
       {mostrarConfirmacion && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="relative bg-gray-900 text-white p-6 rounded-xl shadow-xl w-[90%] max-w-sm">
+          <div className="relative bg-white dark:bg-gray-900 text-black dark:text-white transition-colors p-6 rounded-xl shadow-xl w-[90%] max-w-sm">
             <button
               onClick={() => setMostrarConfirmacion(false)}
-              className="absolute top-3 right-3 text-white text-xl font-bold hover:text-red-500"
+              className="absolute top-3 right-3 text-black dark:text-white text-xl font-bold hover:text-red-500"
             >
               &times;
             </button>
@@ -487,11 +478,6 @@ function Recepcion() {
         </div>
       )}
 
-
-
-
-
-
       <div className="flex justify-center mt-4">
         <button
           className={`${filtroFecha && filtroCodigoCarga && !cargaCompleta
@@ -505,14 +491,12 @@ function Recepcion() {
         </button>
       </div>
 
-
-
       {mostrarModalTerminar && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="relative bg-gray-900 text-white p-6 rounded-xl shadow-xl w-[90%] max-w-sm">
+          <div className="relative bg-white dark:bg-gray-900 text-black dark:text-white transition-colors p-6 rounded-xl shadow-xl w-[90%] max-w-sm">
             <button
               onClick={() => setMostrarModalTerminar(false)}
-              className="absolute top-3 right-3 text-white text-xl font-bold hover:text-red-500"
+              className="absolute top-3 right-3 text-black dark:text-white text-xl font-bold hover:text-red-500"
             >
               &times;
             </button>
@@ -536,10 +520,6 @@ function Recepcion() {
           </div>
         </div>
       )}
-
-
-
-
     </Layout>
   );
 }

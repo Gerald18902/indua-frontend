@@ -5,7 +5,7 @@ import BotonVolver from '../components/BotonVolver'
 import AsignarRutaModal from '../components/AsignarRutaModal'
 import VerLocalesModal from '../components/VerLocalesModal'
 import ReporteTransportePDF from '../components/ReporteTransportePDF';
-import VerMapaModal from '../components/VerMapaModal'; // Ajusta la ruta si lo guardaste en otra carpeta
+import VerMapaModal from '../components/VerMapaModal';
 
 import { toast } from 'react-toastify';
 import { ListOrdered, Map } from 'lucide-react';
@@ -116,17 +116,17 @@ const Transporte = () => {
     <Layout>
       <div className="relative w-full max-w-5xl mx-auto mt-4 flex items-center justify-start">
         <BotonVolver />
-        <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-white text-center">
+        <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-black dark:text-white text-center">
           Módulo de Transporte
         </h1>
       </div>
 
-      <div className="flex flex-col items-center justify-start p-6 text-white">
+      <div className="flex flex-col items-center justify-start p-6 text-black dark:text-white transition-colors">
         <div className="flex flex-wrap gap-4 mb-6">
           <div>
-            <label className="block text-sm mb-1">Filtrar por fecha:</label>
-            <select
-              className="bg-gray-800 text-white px-4 py-2 rounded"
+            <label className="block text-sm mb-1 text-black dark:text-white">Filtrar por fecha:</label>
+            <select className="bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 rounded transition-colors"
+
               value={filtroFecha}
               onChange={e => {
                 setFiltroFecha(e.target.value)
@@ -142,9 +142,8 @@ const Transporte = () => {
 
           {filtroFecha && (
             <div>
-              <label className="block text-sm mb-1">Filtrar por código de carga:</label>
-              <select
-                className="bg-gray-800 text-white px-4 py-2 rounded"
+              <label className="block text-sm mb-1 text-black dark:text-white">Filtrar por código de carga:</label>
+              <select className="bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 rounded transition-colors"
                 value={filtroCodigoCarga}
                 onChange={e => setFiltroCodigoCarga(e.target.value)}
               >
@@ -252,10 +251,10 @@ const Transporte = () => {
 
       {modalGenerarReporteOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="relative bg-gray-900 text-white rounded-xl shadow-lg w-[90%] max-w-md p-8">
+          <div className="relative bg-white dark:bg-gray-900 text-black dark:text-white transition-colors rounded-xl shadow-lg w-[90%] max-w-md p-8">
             <button
               onClick={() => setModalGenerarReporteOpen(false)}
-              className="absolute top-3 right-3 text-white text-2xl font-bold hover:text-red-500"
+              className="absolute top-3 right-3 text-black dark:text-white text-2xl font-bold hover:text-red-500"
             >
               &times;
             </button>
@@ -264,9 +263,9 @@ const Transporte = () => {
               <h2 className="text-xl font-bold text-green-400">Selecciona Carga</h2>
             </div>
 
-            <label className="block text-sm mb-1">Fecha de carga:</label>
+            <label className="block text-sm mb-1 text-black dark:text-white">Fecha de carga:</label>
             <select
-              className="w-full bg-gray-800 px-4 py-2 mb-4 rounded"
+              className="w-full bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 mb-4 rounded transition-colors"
               value={fechaSeleccionada}
               onChange={(e) => {
                 setFechaSeleccionada(e.target.value);
@@ -279,9 +278,9 @@ const Transporte = () => {
               ))}
             </select>
 
-            <label className="block text-sm mb-1">Código de carga:</label>
+            <label className="block text-sm mb-1 text-black dark:text-white">Código de carga:</label>
             <select
-              className="w-full bg-gray-800 px-4 py-2 mb-6 rounded"
+              className="w-full bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 mb-6 rounded transition-colors"
               value={codigoSeleccionado}
               onChange={(e) => setCodigoSeleccionado(e.target.value)}
               disabled={!fechaSeleccionada}
