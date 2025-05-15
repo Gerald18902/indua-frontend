@@ -5,8 +5,10 @@ import BotonVolver from '../components/BotonVolver'
 import AsignarRutaModal from '../components/AsignarRutaModal'
 import VerLocalesModal from '../components/VerLocalesModal'
 import ReporteTransportePDF from '../components/ReporteTransportePDF';
+import VerMapaModal from '../components/VerMapaModal'; // Ajusta la ruta si lo guardaste en otra carpeta
 
 import { toast } from 'react-toastify';
+import { ListOrdered, Map } from 'lucide-react';
 
 const Transporte = () => {
   const [rutas, setRutas] = useState([])
@@ -25,6 +27,9 @@ const Transporte = () => {
   const [mostrarReporte, setMostrarReporte] = useState(false);
   const [datosReporte, setDatosReporte] = useState(null);
   const [cargasConRuta, setCargasConRuta] = useState([]);
+
+  const [modalMapaOpen, setModalMapaOpen] = useState(false);
+  const [idRutaMapa, setIdRutaMapa] = useState(null);
 
   const cargarRutas = useCallback(() => {
     const params = {};
@@ -175,11 +180,23 @@ const Transporte = () => {
                       <button
                         className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded"
                         onClick={() => {
-                          setIdRutaSeleccionada(ruta.idRuta)
-                          setModalLocalesOpen(true)
+                          setIdRutaSeleccionada(ruta.idRuta);
+                          setModalLocalesOpen(true);
                         }}
+                        title="Ver Locales"
                       >
-                        Ver Locales
+                        <ListOrdered size={18} />
+                      </button>
+
+                      <button
+                        className="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-3 rounded ml-2"
+                        onClick={() => {
+                          setIdRutaMapa(ruta.idRuta);
+                          setModalMapaOpen(true);
+                        }}
+                        title="Ver Mapa"
+                      >
+                        <Map size={18} />
                       </button>
                     </td>
                   </tr>
@@ -188,6 +205,13 @@ const Transporte = () => {
             </table>
           </div>
         </div>
+
+        {modalMapaOpen && idRutaMapa && (
+          <VerMapaModal
+            idRuta={idRutaMapa}
+            onClose={() => setModalMapaOpen(false)}
+          />
+        )}
 
         <AsignarRutaModal
           isOpen={modalAsignarOpen}
