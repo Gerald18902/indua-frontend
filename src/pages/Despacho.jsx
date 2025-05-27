@@ -68,7 +68,15 @@ function Despacho() {
 
   const completarEntrega = async () => {
     try {
-      const codigos = bultosFiltrados.map((b) => b.codigoBulto);
+      const codigos = bultosFiltrados
+        .filter((b) => !b.estadoDespacho)
+        .map((b) => b.codigoBulto);
+
+      if (codigos.length === 0) {
+        toast.info("No hay bultos pendientes para marcar como entregados");
+        return;
+      }
+
       await axios.put(
         "http://localhost:8080/api/bultos/actualizar-despacho-masivo",
         {
@@ -76,17 +84,14 @@ function Despacho() {
           nuevoEstado: "ENTREGADO_EN_BUEN_ESTADO",
         }
       );
+
       toast.success("Entrega registrada con éxito");
       setModalEntregaOpen(false);
 
       setBultos((prevBultos) =>
         prevBultos.map((b) =>
           codigos.includes(b.codigoBulto)
-            ? {
-                ...b,
-                estadoDespacho: "ENTREGADO_EN_BUEN_ESTADO",
-                tipoMerma: null,
-              }
+            ? { ...b, estadoDespacho: "ENTREGADO_EN_BUEN_ESTADO" }
             : b
         )
       );
@@ -102,8 +107,7 @@ function Despacho() {
         b.codigoBulto === codigo
           ? {
               ...b,
-              tipoMerma,
-              estadoDespacho: "ENTREGADO_CON_IRREGULARIDAD",
+              estadoDespacho: tipoMerma?.toUpperCase(),
             }
           : b
       )
@@ -186,9 +190,7 @@ function Despacho() {
                     </td>
                     <td className="px-4 py-2">{b.codigoCarga}</td>
                     <td className="px-4 py-2">
-                      {b.tipoMerma ||
-                        b.estadoDespacho?.replace(/_/g, " ") ||
-                        "PENDIENTE"}
+                      {b.estadoDespacho?.replace(/_/g, " ") || "PENDIENTE"}
                     </td>
                   </tr>
                 ))}
@@ -208,7 +210,7 @@ function Despacho() {
           className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded"
           onClick={() => setModalIrregularidadOpen(true)}
         >
-          Registrar Irregularidad
+          Gestión de Actas
         </button>
         <button className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
           Reportes
@@ -228,7 +230,7 @@ function Despacho() {
       <RegistrarIrregularidadModal
         isOpen={modalIrregularidadOpen}
         onClose={() => setModalIrregularidadOpen(false)}
-        onRegistroCompleto={(codigo, tipoMerma) => {
+        onRegistroExitoso={(codigo, tipoMerma) => {
           setModalIrregularidadOpen(false);
           actualizarBultoMerma(codigo, tipoMerma);
         }}
