@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Layout from "../components/Layout";
 import BotonVolver from "../components/BotonVolver";
@@ -15,6 +16,8 @@ function Despacho() {
   const [cargasPorFecha, setCargasPorFecha] = useState({});
   const [modalEntregaOpen, setModalEntregaOpen] = useState(false);
   const [modalIrregularidadOpen, setModalIrregularidadOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     cargarBultos();
@@ -208,7 +211,7 @@ function Despacho() {
         </button>
         <button
           className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded"
-          onClick={() => setModalIrregularidadOpen(true)}
+          onClick={() => navigate("/actas")}
         >
           Gestión de Actas
         </button>
