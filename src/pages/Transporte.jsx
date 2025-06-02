@@ -36,7 +36,7 @@ const Transporte = () => {
     if (filtroFecha) params.fecha = filtroFecha;
     if (filtroCodigoCarga) params.codigoCarga = filtroCodigoCarga;
 
-    axios.get('http://localhost:8080/api/rutas', { params })
+    axios.get('http://18.221.174.4:8080/api/rutas', { params })
       .then(res => setRutas(res.data || []))
       .catch(err => {
         console.error('Error al cargar rutas:', err);
@@ -45,7 +45,7 @@ const Transporte = () => {
   }, [filtroFecha, filtroCodigoCarga]);
 
   const cargarCargas = () => {
-    axios.get('http://localhost:8080/api/cargas')
+    axios.get('http://18.221.174.4:8080/api/cargas')
       .then(res => {
         const data = res.data || []
         const agrupadas = {}
@@ -66,7 +66,7 @@ const Transporte = () => {
   }
 
   const cargarCargasConRuta = () => {
-    axios.get('http://localhost:8080/api/rutas/cargas-con-ruta')
+    axios.get('http://18.221.174.4:8080/api/rutas/cargas-con-ruta')
       .then(res => {
         const data = res.data || [];
         const agrupadas = {};
@@ -89,7 +89,7 @@ const Transporte = () => {
       const carga = cargasPorFecha[fechaSeleccionada]?.find(c => c.codigoCarga === codigoSeleccionado);
       if (!carga) return alert('Carga no encontrada');
 
-      const res = await axios.get(`http://localhost:8080/api/rutas/reporte-transporte/${carga.idCarga}`);
+      const res = await axios.get(`http://18.221.174.4:8080/api/rutas/reporte-transporte/${carga.idCarga}`);
       setDatosReporte(res.data);
       setMostrarReporte(true);
       setModalGenerarReporteOpen(false);

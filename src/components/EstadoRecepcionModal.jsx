@@ -10,7 +10,7 @@ function EstadoRecepcionModal({ isOpen, onClose, onActualizado }) {
     if (!codigoBulto || !nuevoEstado) return;
 
     try {
-      await axios.put(`http://localhost:8080/api/bultos/actualizar-estado`, {
+      await axios.put(`http://18.221.174.4:8080/api/bultos/actualizar-estado`, {
         codigoBulto,
         nuevoEstado,
       });

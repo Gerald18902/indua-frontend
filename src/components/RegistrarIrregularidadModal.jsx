@@ -58,12 +58,13 @@ function RegistrarIrregularidadModal({ isOpen, onClose, onRegistroExitoso }) {
 
     const data = new FormData();
     Object.entries(form).forEach(([key, value]) => {
-      data.append(key, value);
+      if (key !== "estadoMerma") data.append(key, value);
     });
+
     if (foto) data.append("fotoRegistro", foto);
 
     try {
-      const res = await fetch("http://localhost:8080/api/actas", {
+      const res = await fetch("http://18.221.174.4:8080/api/actas", {
         method: "POST",
         body: data,
       });

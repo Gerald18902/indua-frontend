@@ -40,7 +40,7 @@ function Recepcion() {
   }, []);
 
   const cargarBultos = () => {
-    axios.get('http://localhost:8080/api/bultos')
+    axios.get('http://18.221.174.4:8080/api/bultos')
       .then(response => {
         const data = Array.isArray(response.data) ? response.data : [];
 
@@ -99,7 +99,7 @@ function Recepcion() {
   });
 
   const cargarCargas = () => {
-    axios.get('http://localhost:8080/api/cargas')
+    axios.get('http://18.221.174.4:8080/api/cargas')
       .then(response => {
         const data = response.data;
         setCargas(Array.isArray(data) ? data : []);
@@ -146,7 +146,7 @@ function Recepcion() {
       const carga = cargasPorFecha[fechaSeleccionada]?.find(c => c.codigoCarga === codigoSeleccionado);
       if (!carga) return alert('Carga no encontrada');
 
-      const reporteRes = await axios.get(`http://localhost:8080/api/cargas/reporte-recepcion/${carga.idCarga}`);
+      const reporteRes = await axios.get(`http://18.221.174.4:8080/api/cargas/reporte-recepcion/${carga.idCarga}`);
       const reporte = reporteRes.data;
 
       setCodigoParaReporte(carga.codigoCarga);
@@ -165,7 +165,7 @@ function Recepcion() {
     if (!filtroCodigoCarga) return;
 
     try {
-      await axios.put('http://localhost:8080/api/bultos/completar-carga', {
+      await axios.put('http://18.221.174.4:8080/api/bultos/completar-carga', {
         codigoCarga: filtroCodigoCarga,
       });
 
@@ -179,7 +179,7 @@ function Recepcion() {
 
   const handleTerminarCarga = async () => {
     try {
-      await axios.put('http://localhost:8080/api/bultos/terminar-carga', {
+      await axios.put('http://18.221.174.4:8080/api/bultos/terminar-carga', {
         codigoCarga: filtroCodigoCarga,
       });
 
@@ -268,7 +268,7 @@ function Recepcion() {
                     }
 
                     try {
-                      await axios.put(`http://localhost:8080/api/bultos/actualizar-estado`, {
+                      await axios.put(`http://18.221.174.4:8080/api/bultos/actualizar-estado`, {
                         codigoBulto: codigo,
                         nuevoEstado: 'EN_BUEN_ESTADO',
                       });

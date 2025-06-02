@@ -13,7 +13,7 @@ function RegistroCarga() {
   }, [])
 
   const cargarCargas = () => {
-    axios.get('http://localhost:8080/api/cargas')
+    axios.get('http://18.221.174.4:8080/api/cargas')
       .then(response => {
         let data = Array.isArray(response.data) ? response.data : [];
 

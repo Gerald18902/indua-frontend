@@ -26,7 +26,7 @@ function Despacho() {
 
   const cargarBultos = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/bultos/en-camino");
+      const res = await axios.get("http://18.221.174.4:8080/api/bultos/en-camino");
       const data = Array.isArray(res.data) ? res.data : [];
       setBultos(data);
     } catch (err) {
@@ -37,7 +37,7 @@ function Despacho() {
 
   const cargarCargas = () => {
     axios
-      .get("http://localhost:8080/api/cargas")
+      .get("http://18.221.174.4:8080/api/cargas")
       .then((res) => {
         const data = res.data;
         setCargas(data);
@@ -81,7 +81,7 @@ function Despacho() {
       }
 
       await axios.put(
-        "http://localhost:8080/api/bultos/actualizar-despacho-masivo",
+        "http://18.221.174.4:8080/api/bultos/actualizar-despacho-masivo",
         {
           codigosBulto: codigos,
           nuevoEstado: "ENTREGADO_EN_BUEN_ESTADO",

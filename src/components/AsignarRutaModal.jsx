@@ -23,10 +23,10 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
 
   useEffect(() => {
     if (isOpen) {
-      axios.get('http://localhost:8080/api/rutas/cargas-disponibles')
+      axios.get('http://18.221.174.4:8080/api/rutas/cargas-disponibles')
         .then(res => setCargasDisponibles(res.data || []))
 
-      axios.get('http://localhost:8080/api/rutas/unidades-transporte')
+      axios.get('http://18.221.174.4:8080/api/rutas/unidades-transporte')
         .then(res => setUnidadesTransporte(res.data || []))
     }
   }, [isOpen])
@@ -34,18 +34,18 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
   useEffect(() => {
     if (idCargaSeleccionada) {
       // Carga los locales no asignados aún
-      axios.get(`http://localhost:8080/api/rutas/locales-en-frecuencia/${idCargaSeleccionada}`)
+      axios.get(`http://18.221.174.4:8080/api/rutas/locales-en-frecuencia/${idCargaSeleccionada}`)
         .then(res => {
           setLocalesSeleccionados(res.data || []);
           setLocalesDescartados([]);
         });
 
       // Carga todas las unidades y filtra las ya usadas para esta carga
-      axios.get('http://localhost:8080/api/rutas/unidades-transporte')
+      axios.get('http://18.221.174.4:8080/api/rutas/unidades-transporte')
         .then(res => {
           const todas = res.data || [];
 
-          axios.get(`http://localhost:8080/api/rutas?codigoCarga=${codigoCargaSeleccionada}`)
+          axios.get(`http://18.221.174.4:8080/api/rutas?codigoCarga=${codigoCargaSeleccionada}`)
             .then(rutasRes => {
               const rutas = rutasRes.data || [];
               const idsUsados = rutas.map(r => r.idUnidad);
@@ -98,7 +98,7 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
       }))
     };
 
-    axios.post('http://localhost:8080/api/rutas', payload)
+    axios.post('http://18.221.174.4:8080/api/rutas', payload)
       .then(res => {
         console.log(res.data); // puede seguir mostrándose si quieres
 
@@ -106,7 +106,7 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
         onRutaAsignada();
 
         // Vuelve a cargar los locales restantes
-        axios.get(`http://localhost:8080/api/rutas/locales-en-frecuencia/${idCargaSeleccionada}`)
+        axios.get(`http://18.221.174.4:8080/api/rutas/locales-en-frecuencia/${idCargaSeleccionada}`)
           .then(resp => {
             const restantes = resp.data || [];
             if (restantes.length > 0) {
@@ -118,11 +118,11 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
               setMensajePendientes('Aún quedan locales sin asignar. Continúa creando rutas.');
 
               // Refrescar unidades disponibles
-              axios.get('http://localhost:8080/api/rutas/unidades-transporte')
+              axios.get('http://18.221.174.4:8080/api/rutas/unidades-transporte')
                 .then(res => {
                   const todas = res.data || [];
 
-                  axios.get(`http://localhost:8080/api/rutas?codigoCarga=${codigoCargaSeleccionada}`)
+                  axios.get(`http://18.221.174.4:8080/api/rutas?codigoCarga=${codigoCargaSeleccionada}`)
                     .then(rutasRes => {
                       const rutas = rutasRes.data || [];
                       const idsUsados = rutas.map(r => r.idUnidad);
@@ -133,7 +133,7 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
               setBloquearCarga(true);
             } else {
               // Ya no quedan locales pendientes → recargar lista de cargas disponibles
-              axios.get('http://localhost:8080/api/rutas/cargas-disponibles')
+              axios.get('http://18.221.174.4:8080/api/rutas/cargas-disponibles')
                 .then(res => {
                   setCargasDisponibles(res.data || []);
                   setPaso(1);
