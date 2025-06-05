@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import DividirVueltasModal from '../components/DividirVueltasModal'
+import { toast } from 'react-toastify'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 
 
@@ -8,7 +10,7 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
   const [unidadesTransporte, setUnidadesTransporte] = useState([])
 
   const [localesSeleccionados, setLocalesSeleccionados] = useState([]);
-  const [localesDescartados, setLocalesDescartados] = useState([]);
+  const [localesDisponibles, setLocalesDisponibles] = useState([]);
 
   const [idCargaSeleccionada, setIdCargaSeleccionada] = useState('')
   const [codigoCargaSeleccionada, setCodigoCargaSeleccionada] = useState('');
@@ -19,14 +21,21 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
 
   const [bloquearCarga, setBloquearCarga] = useState(false);
 
+  const [filtroLocal, setFiltroLocal] = useState('');
+
+  const [segundaVueltaActiva, setSegundaVueltaActiva] = useState(false);
+  const [mostrarSubmodalVueltas, setMostrarSubmodalVueltas] = useState(false);
+  const [vueltasTemporales, setVueltasTemporales] = useState(null); // almacena { primera, segunda }
+  const [localesParaDividir, setLocalesParaDividir] = useState([]);
+
   const tienePendientes = mensajePendientes !== '';
 
   useEffect(() => {
     if (isOpen) {
-      axios.get('http://18.221.174.4:8080/api/rutas/cargas-disponibles')
+      axios.get('http://localhost:8080/api/rutas/cargas-disponibles')
         .then(res => setCargasDisponibles(res.data || []))
 
-      axios.get('http://18.221.174.4:8080/api/rutas/unidades-transporte')
+      axios.get('http://localhost:8080/api/rutas/unidades-transporte')
         .then(res => setUnidadesTransporte(res.data || []))
     }
   }, [isOpen])
@@ -34,18 +43,18 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
   useEffect(() => {
     if (idCargaSeleccionada) {
       // Carga los locales no asignados aún
-      axios.get(`http://18.221.174.4:8080/api/rutas/locales-en-frecuencia/${idCargaSeleccionada}`)
+      axios.get(`http://localhost:8080/api/rutas/locales-en-frecuencia/${idCargaSeleccionada}`)
         .then(res => {
-          setLocalesSeleccionados(res.data || []);
-          setLocalesDescartados([]);
+          setLocalesSeleccionados([]);
+          setLocalesDisponibles(res.data || []);
         });
 
       // Carga todas las unidades y filtra las ya usadas para esta carga
-      axios.get('http://18.221.174.4:8080/api/rutas/unidades-transporte')
+      axios.get('http://localhost:8080/api/rutas/unidades-transporte')
         .then(res => {
           const todas = res.data || [];
 
-          axios.get(`http://18.221.174.4:8080/api/rutas?codigoCarga=${codigoCargaSeleccionada}`)
+          axios.get(`http://localhost:8080/api/rutas?codigoCarga=${codigoCargaSeleccionada}`)
             .then(rutasRes => {
               const rutas = rutasRes.data || [];
               const idsUsados = rutas.map(r => r.idUnidad);
@@ -66,63 +75,103 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
 
   const handleIrAConfirmacion = () => {
     if (!idCargaSeleccionada || !idUnidadSeleccionada || localesSeleccionados.length === 0) {
-      alert('Completa todos los campos requeridos');
+      toast.error('Completa todos los campos requeridos');
       return;
     }
-    setPaso(2); // cambia a la vista del comentario
-  }
+
+    setFiltroLocal('');
+
+    if (segundaVueltaActiva) {
+      // Abrir el submodal para dividir
+      setLocalesParaDividir([...localesSeleccionados]);
+      setMostrarSubmodalVueltas(true);
+    } else {
+      setPaso(2); // flujo normal
+    }
+  };
+
 
   const quitarLocal = (idLocal) => {
-    if (localesSeleccionados.length <= 1) {
-      alert('Debes dejar al menos un local para esta ruta');
-      return;
-    }
+    const actualizados = localesSeleccionados.filter(l => l.idLocal !== idLocal);
+    setLocalesSeleccionados(actualizados);
     const local = localesSeleccionados.find(l => l.idLocal === idLocal);
-    setLocalesSeleccionados(prev => prev.filter(l => l.idLocal !== idLocal));
-    setLocalesDescartados(prev => [...prev, local]);
+    setLocalesDisponibles(prev => [...prev, local]);
+
+    // Si quedan menos de 2 locales, forzar que segunda vuelta se desactive
+    if (actualizados.length < 2 && segundaVueltaActiva) {
+      setSegundaVueltaActiva(false);
+    }
   };
 
   const agregarLocal = (local) => {
-    setLocalesDescartados(prev => prev.filter(l => l.idLocal !== local.idLocal));
+    setLocalesDisponibles(prev => prev.filter(l => l.idLocal !== local.idLocal));
     setLocalesSeleccionados(prev => [...prev, local]);
   };
 
-  const handleConfirmarRuta = () => {
-    const payload = {
-      idCarga: idCargaSeleccionada,
-      idUnidad: idUnidadSeleccionada,
-      comentario,
-      localesOrdenados: localesSeleccionados.map((l, index) => ({
-        idLocal: l.idLocal,
-        orden: index + 1
-      }))
-    };
+  const handleConfirmarRuta = (vueltasDirectas = null) => {
+    const rutasPayload = [];
 
-    axios.post('http://18.221.174.4:8080/api/rutas', payload)
-      .then(res => {
-        console.log(res.data); // puede seguir mostrándose si quieres
+    const vueltas = vueltasDirectas || vueltasTemporales;
 
-        // Llama al callback para refrescar la tabla
+    if (segundaVueltaActiva && vueltas) {
+      rutasPayload.push({
+        idCarga: idCargaSeleccionada,
+        idUnidad: idUnidadSeleccionada,
+        comentario: 'PRIMERA VUELTA',
+        localesOrdenados: vueltas.primera.map((l, index) => ({
+          idLocal: l.idLocal,
+          orden: index + 1
+        }))
+      });
+
+      rutasPayload.push({
+        idCarga: idCargaSeleccionada,
+        idUnidad: idUnidadSeleccionada,
+        comentario: 'SEGUNDA VUELTA',
+        localesOrdenados: vueltas.segunda.map((l, index) => ({
+          idLocal: l.idLocal,
+          orden: index + 1
+        }))
+      });
+    }
+
+    else {
+      rutasPayload.push({
+        idCarga: idCargaSeleccionada,
+        idUnidad: idUnidadSeleccionada,
+        comentario,
+        localesOrdenados: localesSeleccionados.map((l, index) => ({
+          idLocal: l.idLocal,
+          orden: index + 1
+        }))
+      });
+    }
+
+    Promise.all(
+      rutasPayload.map(payload =>
+        axios.post('http://localhost:8080/api/rutas', payload)
+      )
+    )
+      .then(() => {
         onRutaAsignada();
 
-        // Vuelve a cargar los locales restantes
-        axios.get(`http://18.221.174.4:8080/api/rutas/locales-en-frecuencia/${idCargaSeleccionada}`)
+        axios.get(`http://localhost:8080/api/rutas/locales-en-frecuencia/${idCargaSeleccionada}`)
           .then(resp => {
             const restantes = resp.data || [];
             if (restantes.length > 0) {
               setLocalesSeleccionados(restantes);
+              setLocalesDisponibles([]);
               setIdUnidadSeleccionada('');
-              setLocalesDescartados([]);
               setComentario('');
               setPaso(1);
               setMensajePendientes('Aún quedan locales sin asignar. Continúa creando rutas.');
+              setSegundaVueltaActiva(false);
+              setVueltasTemporales(null);
 
-              // Refrescar unidades disponibles
-              axios.get('http://18.221.174.4:8080/api/rutas/unidades-transporte')
+              axios.get('http://localhost:8080/api/rutas/unidades-transporte')
                 .then(res => {
                   const todas = res.data || [];
-
-                  axios.get(`http://18.221.174.4:8080/api/rutas?codigoCarga=${codigoCargaSeleccionada}`)
+                  axios.get(`http://localhost:8080/api/rutas?codigoCarga=${codigoCargaSeleccionada}`)
                     .then(rutasRes => {
                       const rutas = rutasRes.data || [];
                       const idsUsados = rutas.map(r => r.idUnidad);
@@ -130,10 +179,10 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
                       setUnidadesTransporte(disponibles);
                     });
                 });
+
               setBloquearCarga(true);
             } else {
-              // Ya no quedan locales pendientes → recargar lista de cargas disponibles
-              axios.get('http://18.221.174.4:8080/api/rutas/cargas-disponibles')
+              axios.get('http://localhost:8080/api/rutas/cargas-disponibles')
                 .then(res => {
                   setCargasDisponibles(res.data || []);
                   setPaso(1);
@@ -141,14 +190,16 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
                   setIdCargaSeleccionada('');
                   setIdUnidadSeleccionada('');
                   setMensajePendientes('');
-                  onClose(); // cierra el modal
+                  setSegundaVueltaActiva(false);
+                  setVueltasTemporales(null);
+                  onClose();
                 });
             }
           });
       })
       .catch(err => {
-        console.error('Error al asignar ruta:', err);
-        alert('Error al asignar la ruta');
+        console.error('Error al asignar rutas:', err);
+        toast.error('Error al asignar la(s) ruta(s)');
       });
   };
 
@@ -160,7 +211,7 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
         <button
           onClick={() => {
             if (tienePendientes) {
-              alert("Debes terminar de asignar todos los locales antes de cerrar.");
+              toast.error("Debes terminar de asignar todos los locales antes de cerrar.");
               return;
             }
 
@@ -170,7 +221,9 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
             setIdUnidadSeleccionada('');
             setMensajePendientes('');
             setLocalesSeleccionados([]);
-            setLocalesDescartados([]);
+            setLocalesDisponibles([]);
+            setFiltroLocal('');
+            setSegundaVueltaActiva(false);
             setBloquearCarga(false);
             onClose();
           }}
@@ -228,6 +281,32 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
               </select>
             </div>
 
+
+            <div className="mb-4 flex items-center">
+              <label htmlFor="switch-segunda-vuelta" className="text-sm select-none mr-3">
+                ¿Segunda vuelta?
+              </label>
+
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="switch-segunda-vuelta"
+                  className="sr-only peer"
+                  checked={segundaVueltaActiva}
+                  onChange={(e) => setSegundaVueltaActiva(e.target.checked)}
+                  disabled={localesSeleccionados.length < 2}
+                />
+                <div className={`
+      w-11 h-6 rounded-full
+      ${localesSeleccionados.length < 2 ? 'bg-gray-300' : 'bg-gray-400 peer-checked:bg-green-500'}
+      peer-focus:outline-none transition-colors
+    `}></div>
+                <div className={`
+      absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition
+      peer-checked:translate-x-5
+    `}></div>
+              </label>
+            </div>
             <div className="grid grid-cols-2 gap-4 mb-4">
               {/* Seleccionados */}
               <div>
@@ -268,19 +347,33 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
 
               {/* Descartados */}
               <div>
-                <label className="block text-sm mb-1">Locales descartados:</label>
+                <label className="block text-sm mb-1">Locales disponibles:</label>
+
+                <input
+                  type="text"
+                  placeholder="Buscar local..."
+                  className="w-full mb-2 px-3 py-1 rounded bg-white dark:bg-gray-800 text-black dark:text-white border border-gray-300 dark:border-gray-600"
+                  value={filtroLocal}
+                  onChange={e => setFiltroLocal(e.target.value)}
+                />
+
                 <div className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-400 transition-colors p-2 rounded max-h-40 overflow-y-auto">
-                  {localesDescartados.map((local, index) => (
-                    <div key={index} className="flex justify-between items-center mb-1">
-                      <span>{local.nombre} ({local.codigo})</span>
-                      <button
-                        className="text-green-400 hover:text-green-600 ml-2 font-bold"
-                        onClick={() => agregarLocal(local)}
-                        title="Agregar"
-                      >➕</button>
-                    </div>
-                  ))}
-                  {localesDescartados.length === 0 && (
+                  {localesDisponibles
+                    .filter(local =>
+                      local.nombre.toLowerCase().includes(filtroLocal.toLowerCase()) ||
+                      local.codigo.toLowerCase().includes(filtroLocal.toLowerCase())
+                    )
+                    .map((local, index) => (
+                      <div key={index} className="flex justify-between items-center mb-1">
+                        <span>{local.nombre} ({local.codigo})</span>
+                        <button
+                          className="text-green-400 hover:text-green-600 ml-2 font-bold"
+                          onClick={() => agregarLocal(local)}
+                          title="Agregar"
+                        >➕</button>
+                      </div>
+                    ))}
+                  {localesDisponibles.length === 0 && (
                     <p className="text-sm italic text-gray-500">Ninguno</p>
                   )}
                 </div>
@@ -321,6 +414,16 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
           </>
         )}
       </div>
+
+      <DividirVueltasModal
+        isOpen={mostrarSubmodalVueltas}
+        onClose={() => setMostrarSubmodalVueltas(false)}
+        localesIniciales={localesParaDividir}
+        onConfirmar={(vueltas) => {
+          setMostrarSubmodalVueltas(false);
+          handleConfirmarRuta(vueltas);
+        }}
+      />
 
     </div>
   )

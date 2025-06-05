@@ -1,16 +1,19 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 
-const BotonVolver = ({ texto = 'Volver' }) => {
-  const navigate = useNavigate()
+const BotonVolver = ({ texto = 'Volver', ruta = '/' }) => {
+  const navigate = useNavigate();
 
   return (
     <button
-      onClick={() => navigate(-1)}
-      className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold shadow-md hover:from-blue-600 hover:to-purple-600 transition duration-300 group"
+      onClick={() => navigate(ruta)}
+      className="inline-flex items-center gap-2 px-4 py-2 rounded-md 
+      bg-gray-200 hover:bg-gray-300 text-gray-800 
+      dark:bg-black dark:hover:bg-gray-800 dark:text-white 
+      font-medium shadow-sm transition"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-1"
+        className="h-5 w-5 text-gray-600"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -20,7 +23,7 @@ const BotonVolver = ({ texto = 'Volver' }) => {
       </svg>
       {texto}
     </button>
-  )
-}
+  );
+};
 
-export default BotonVolver
+export default BotonVolver;

@@ -1,11 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Layout from "../components/Layout";
+import BotonVolver from "../components/BotonVolver";
 import { toast } from "react-toastify";
 
 export default function Actas() {
-  const navigate = useNavigate();
+  
   const [actas, setActas] = useState([]);
   const [filtros, setFiltros] = useState({
     codigoBulto: "",
@@ -25,7 +25,7 @@ export default function Actas() {
       params.append("fechaIncidencia", filtros.fechaIncidencia);
 
     axios
-      .get(`http://18.221.174.4:8080/api/actas?${params.toString()}`)
+      .get(`http://localhost:8080/api/actas?${params.toString()}`)
       .then((res) => setActas(res.data))
       .catch((err) => {
         console.error(err);
@@ -45,7 +45,7 @@ export default function Actas() {
 
     try {
       await axios.post(
-        `http://18.221.174.4:8080/api/actas/${actualizando.idActa}/actualizar`,
+        `http://localhost:8080/api/actas/${actualizando.idActa}/actualizar`,
         formData
       );
       toast.success("Acta actualizada");
@@ -61,12 +61,7 @@ export default function Actas() {
   return (
     <Layout>
       <div className="relative w-full max-w-5xl mx-auto mt-4 flex items-center justify-start">
-        <button
-          onClick={() => navigate("/despacho")}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          ← Volver
-        </button>
+        <BotonVolver ruta="/despacho"/>
         <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-black dark:text-white text-center">
           Módulo de Actas
         </h1>
@@ -173,7 +168,7 @@ export default function Actas() {
                   <td className="px-4 py-2">
                     {a.fotoRegistro && (
                       <img
-                        src={`http://18.221.174.4:8080/uploads/${a.fotoRegistro}`}
+                        src={`http://localhost:8080/uploads/${a.fotoRegistro}`}
                         alt="registro"
                         onError={(e) => {
                           e.target.onerror = null;
@@ -186,7 +181,7 @@ export default function Actas() {
                   <td className="px-4 py-2">
                     {a.fotoRegularizacion && (
                       <img
-                        src={`http://18.221.174.4:8080/uploads/${a.fotoRegularizacion}`}
+                        src={`http://localhost:8080/uploads/${a.fotoRegularizacion}`}
                         alt="regularizacion"
                         onError={(e) => {
                           e.target.onerror = null;

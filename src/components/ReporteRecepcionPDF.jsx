@@ -37,7 +37,7 @@ const ReporteRecepcionPDF = ({
     const generarPDF = async () => {
       try {
         const [datosFrecuencia, logoBase64] = await Promise.all([
-          axios.get(`http://18.221.174.4:8080/api/cargas/reporte-frecuencia/${idCarga}`).then(res => res.data),
+          axios.get(`http://localhost:8080/api/cargas/reporte-frecuencia/${idCarga}`).then(res => res.data),
           convertImageToBase64(logo)
         ]);
 

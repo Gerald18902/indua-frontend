@@ -53,8 +53,7 @@ function CargaModal({ isOpen, onClose, onCargaRegistrada }) {
 
     if (!file.name.endsWith('.xlsx')) {
       toast.error('Debes seleccionar un archivo válido en formato .xlsx', {
-        position: 'top-center',
-        autoClose: 3000,
+        position: 'top-center'
       })
       return
     }
@@ -69,7 +68,7 @@ function CargaModal({ isOpen, onClose, onCargaRegistrada }) {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch('http://18.221.174.4:8080/api/cargas', {
+      const response = await fetch('http://localhost:8080/api/cargas', {
         method: 'POST',
         body: data,
       })

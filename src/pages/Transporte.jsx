@@ -36,7 +36,7 @@ const Transporte = () => {
     if (filtroFecha) params.fecha = filtroFecha;
     if (filtroCodigoCarga) params.codigoCarga = filtroCodigoCarga;
 
-    axios.get('http://18.221.174.4:8080/api/rutas', { params })
+    axios.get('http://localhost:8080/api/rutas', { params })
       .then(res => setRutas(res.data || []))
       .catch(err => {
         console.error('Error al cargar rutas:', err);
@@ -45,7 +45,7 @@ const Transporte = () => {
   }, [filtroFecha, filtroCodigoCarga]);
 
   const cargarCargas = () => {
-    axios.get('http://18.221.174.4:8080/api/cargas')
+    axios.get('http://localhost:8080/api/cargas')
       .then(res => {
         const data = res.data || []
         const agrupadas = {}
@@ -66,7 +66,7 @@ const Transporte = () => {
   }
 
   const cargarCargasConRuta = () => {
-    axios.get('http://18.221.174.4:8080/api/rutas/cargas-con-ruta')
+    axios.get('http://localhost:8080/api/rutas/cargas-con-ruta')
       .then(res => {
         const data = res.data || [];
         const agrupadas = {};
@@ -89,12 +89,12 @@ const Transporte = () => {
       const carga = cargasPorFecha[fechaSeleccionada]?.find(c => c.codigoCarga === codigoSeleccionado);
       if (!carga) return alert('Carga no encontrada');
 
-      const res = await axios.get(`http://18.221.174.4:8080/api/rutas/reporte-transporte/${carga.idCarga}`);
+      const res = await axios.get(`http://localhost:8080/api/rutas/reporte-transporte/${carga.idCarga}`);
       setDatosReporte(res.data);
       setMostrarReporte(true);
       setModalGenerarReporteOpen(false);
     } catch (err) {
-      alert('Error al generar el reporte');
+      toast.error('Error al generar el reporte');
       console.error(err);
     }
   };
@@ -115,7 +115,7 @@ const Transporte = () => {
   return (
     <Layout>
       <div className="relative w-full max-w-5xl mx-auto mt-4 flex items-center justify-start">
-        <BotonVolver />
+        <BotonVolver ruta="/dashboard"/>
         <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-black dark:text-white text-center">
           Módulo de Transporte
         </h1>
@@ -158,24 +158,24 @@ const Transporte = () => {
           )}
         </div>
 
-        <div className="bg-white text-black rounded-xl shadow-lg w-full max-w-5xl overflow-hidden">
+        <div className="bg-white text-black rounded-xl shadow-lg w-full max-w-5xl mx-auto overflow-hidden">
           <div className="overflow-y-auto max-h-[400px]">
-            <table className="table-auto min-w-full">
+            <table className="table-auto w-full">
               <thead className="sticky top-0 z-10 bg-black text-white text-sm uppercase tracking-wide text-center">
                 <tr>
-                  <th className="px-6 py-3 text-center">Código Carga</th>
-                  <th className="px-6 py-3 text-center">Placa</th>
-                  <th className="px-6 py-3 text-center">Comentario</th>
-                  <th className="px-6 py-3 text-center">Locales</th>
+                  <th className="px-6 py-3">Código Carga</th>
+                  <th className="px-6 py-3">Placa</th>
+                  <th className="px-6 py-3">Comentario</th>
+                  <th className="px-6 py-3">Locales</th>
                 </tr>
               </thead>
               <tbody>
                 {rutas.map((ruta, i) => (
-                  <tr key={i} className="text-center">
-                    <td className="border px-4 py-2">{ruta.codigoCarga}</td>
-                    <td className="border px-4 py-2">{ruta.placaUnidad}</td>
-                    <td className="border px-4 py-2">{ruta.comentario || '-'}</td>
-                    <td className="border px-4 py-2">
+                  <tr key={i} className="text-center border-t">
+                    <td className="px-4 py-2">{ruta.codigoCarga}</td>
+                    <td className="px-4 py-2">{ruta.placaUnidad}</td>
+                    <td className="px-4 py-2">{ruta.comentario || '-'}</td>
+                    <td className="px-4 py-2">
                       <button
                         className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded"
                         onClick={() => {
@@ -230,7 +230,7 @@ const Transporte = () => {
           </button>
 
           <button
-            className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded transition"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition"
             onClick={() => {
               setModalGenerarReporteOpen(true);
               setFechaSeleccionada('');

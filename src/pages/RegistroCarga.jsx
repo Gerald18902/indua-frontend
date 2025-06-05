@@ -13,7 +13,7 @@ function RegistroCarga() {
   }, [])
 
   const cargarCargas = () => {
-    axios.get('http://18.221.174.4:8080/api/cargas')
+    axios.get('http://localhost:8080/api/cargas')
       .then(response => {
         let data = Array.isArray(response.data) ? response.data : [];
 
@@ -36,7 +36,7 @@ function RegistroCarga() {
   return (
     <Layout>
       <div className="relative w-full max-w-5xl mx-auto mt-4 flex items-center justify-start">
-        <BotonVolver />
+        <BotonVolver ruta="/administracion"/>
         <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-black dark:text-white text-center">
           Registro de Carga
         </h1>

@@ -4,17 +4,13 @@ import { toast } from 'react-toastify'
 import Layout from '../components/Layout';
 import BotonVolver from '../components/BotonVolver'
 
-import EstadoRecepcionModal from '../components/EstadoRecepcionModal';
-
 import ReporteRecepcionPDF from '../components/ReporteRecepcionPDF';
 
 function Recepcion() {
   const [bultos, setBultos] = useState([])
   const [cargas, setCargas] = useState([]);
 
-  const [modalEditarOpen, setModalEditarOpen] = useState(false);
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
-
 
   const [mostrarReporte, setMostrarReporte] = useState(false);
   const [codigoParaReporte, setCodigoParaReporte] = useState(null);
@@ -33,14 +29,21 @@ function Recepcion() {
 
   const [mostrarModalTerminar, setMostrarModalTerminar] = useState(false);
 
+  const [filtroCodigoBulto, setFiltroCodigoBulto] = useState('');
 
   useEffect(() => {
     cargarBultos();
     cargarCargas();
   }, []);
 
+  useEffect(() => {
+    if (!filtroFecha || !filtroCodigoCarga) {
+      setFiltroCodigoBulto('');
+    }
+  }, [filtroFecha, filtroCodigoCarga]);
+
   const cargarBultos = () => {
-    axios.get('http://18.221.174.4:8080/api/bultos')
+    axios.get('http://localhost:8080/api/bultos')
       .then(response => {
         const data = Array.isArray(response.data) ? response.data : [];
 
@@ -89,17 +92,19 @@ function Recepcion() {
   }, [cargasSinNulos, filtroCodigoCarga]);
 
   const bultosFiltrados = bultos.filter(b => {
-    if (!filtroFecha) return true; // si no hay filtro de fecha, muestra todo
+    if (!filtroFecha) return true;
     const carga = cargas.find(c => c.codigoCarga === b.codigoCarga);
     if (!carga || carga.fechaCarga !== filtroFecha) return false;
 
     if (filtroCodigoCarga && b.codigoCarga !== filtroCodigoCarga) return false;
 
+    if (filtroCodigoBulto && !b.codigoBulto.includes(filtroCodigoBulto)) return false;
+
     return true;
   });
 
   const cargarCargas = () => {
-    axios.get('http://18.221.174.4:8080/api/cargas')
+    axios.get('http://localhost:8080/api/cargas')
       .then(response => {
         const data = response.data;
         setCargas(Array.isArray(data) ? data : []);
@@ -146,7 +151,7 @@ function Recepcion() {
       const carga = cargasPorFecha[fechaSeleccionada]?.find(c => c.codigoCarga === codigoSeleccionado);
       if (!carga) return alert('Carga no encontrada');
 
-      const reporteRes = await axios.get(`http://18.221.174.4:8080/api/cargas/reporte-recepcion/${carga.idCarga}`);
+      const reporteRes = await axios.get(`http://localhost:8080/api/cargas/reporte-recepcion/${carga.idCarga}`);
       const reporte = reporteRes.data;
 
       setCodigoParaReporte(carga.codigoCarga);
@@ -156,7 +161,7 @@ function Recepcion() {
       setMostrarReporte(true);
       setModalReporteOpen(false);
     } catch (err) {
-      alert('Error al generar el reporte');
+      toast.error('Error al generar el reporte.');
       console.error(err);
     }
   };
@@ -165,28 +170,28 @@ function Recepcion() {
     if (!filtroCodigoCarga) return;
 
     try {
-      await axios.put('http://18.221.174.4:8080/api/bultos/completar-carga', {
+      await axios.put('http://localhost:8080/api/bultos/completar-carga', {
         codigoCarga: filtroCodigoCarga,
       });
 
       toast.success('Carga completada con éxito');
       cargarBultos(); // refrescar tabla
     } catch (error) {
-      alert('Hubo un error al completar la carga');
+      toast.error('Hubo un error al completar la carga');
       console.error(error);
     }
   };
 
   const handleTerminarCarga = async () => {
     try {
-      await axios.put('http://18.221.174.4:8080/api/bultos/terminar-carga', {
+      await axios.put('http://localhost:8080/api/bultos/terminar-carga', {
         codigoCarga: filtroCodigoCarga,
       });
 
       toast.success('Carga terminada con éxito');
       cargarBultos();
     } catch (error) {
-      alert('Error al terminar la carga');
+      toast.error('Error al terminar la carga');
       console.error(error);
     } finally {
       setMostrarModalTerminar(false);
@@ -197,7 +202,7 @@ function Recepcion() {
     <Layout>
 
       <div className="relative w-full max-w-5xl mx-auto mt-4 flex items-center justify-start">
-        <BotonVolver />
+        <BotonVolver ruta="/dashboard"/>
         <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-black dark:text-white text-center">
           Módulo de Recepción
         </h1>
@@ -245,7 +250,9 @@ function Recepcion() {
         </div>
 
         {filtroFecha && filtroCodigoCarga && (
-          <div className="w-full max-w-5xl flex justify-start mb-4">
+          <div className="w-full max-w-5xl flex justify-between items-end mb-4">
+
+            {/* Input escanear (izquierda) */}
             <div className="flex flex-col">
               <label className="text-sm text-black dark:text-white mb-1">Escanear código de bulto:</label>
               <input
@@ -268,7 +275,7 @@ function Recepcion() {
                     }
 
                     try {
-                      await axios.put(`http://18.221.174.4:8080/api/bultos/actualizar-estado`, {
+                      await axios.put(`http://localhost:8080/api/bultos/actualizar-estado`, {
                         codigoBulto: codigo,
                         nuevoEstado: 'EN_BUEN_ESTADO',
                       });
@@ -277,19 +284,36 @@ function Recepcion() {
                       e.target.value = '';
                       cargarBultos();
                     } catch (error) {
-                      alert('Error al actualizar el estado del bulto');
+                      toast.error('Error al actualizar el estado del bulto');
                       console.error(error);
                     }
                   }
                 }}
               />
             </div>
+
+            {/* Input buscar (derecha) */}
+            <div className="flex flex-col text-right">
+              <label className="text-sm text-black dark:text-white mb-1">Editar estado:</label>
+              <input
+                type="text"
+                className={`px-4 py-2 rounded transition-colors ${cargaCompleta
+                  ? 'bg-gray-300 dark:bg-gray-600 text-black dark:text-white cursor-not-allowed'
+                  : 'bg-gray-100 dark:bg-gray-800 text-black dark:text-white'
+                  }`}
+                placeholder="Ej: BANSA1234..."
+                disabled={cargaCompleta}
+                value={filtroCodigoBulto}
+                onChange={(e) => setFiltroCodigoBulto(e.target.value.trim().toUpperCase())}
+              />
+            </div>
+
           </div>
         )}
 
-        <div className="bg-white text-black rounded-xl shadow-lg w-full max-w-5xl overflow-hidden">
+        <div className="bg-white text-black rounded-xl shadow-lg w-full max-w-5xl mx-auto overflow-hidden">
           <div className="overflow-y-auto max-h-[400px]">
-            <table className="table-auto min-w-full">
+            <table className="table-auto w-full">
               <thead className="sticky top-0 z-10 bg-black text-white text-sm uppercase tracking-wide text-center">
                 <tr>
                   <th className="px-6 py-3 text-center">Código Bulto</th>
@@ -311,11 +335,42 @@ function Recepcion() {
                     return a.codigoBulto.localeCompare(b.codigoBulto);
                   })
                   .map((b, i) => (
-                    <tr key={i} className="text-center">
-                      <td className="border px-4 py-2">{b.codigoBulto}</td>
-                      <td className="border px-4 py-2">{b.nombreLocal} - {b.codigoLocal}</td>
-                      <td className="border px-4 py-2">{b.codigoCarga}</td>
-                      <td className="border px-4 py-2">{b.estadoRecepcion?.replace(/_/g, ' ')}</td>
+                    <tr key={i} className="text-center border-t">
+                      <td className="px-4 py-2">{b.codigoBulto}</td>
+                      <td className="px-4 py-2">{b.nombreLocal} - {b.codigoLocal}</td>
+                      <td className="px-4 py-2">{b.codigoCarga}</td>
+                      <td className="px-4 py-2 text-black text-center">
+                        {filtroCodigoBulto ? (
+                          <select
+                            className="bg-gray-200 text-black px-2 py-1 rounded w-full text-center"
+                            value={b.estadoRecepcion}
+                            onChange={async (e) => {
+                              const nuevoEstado = e.target.value;
+                              if (nuevoEstado === '-') return;
+
+                              try {
+                                await axios.put(`http://localhost:8080/api/bultos/actualizar-estado`, {
+                                  codigoBulto: b.codigoBulto,
+                                  nuevoEstado,
+                                });
+
+                                toast.success(`Estado actualizado a ${nuevoEstado.replace(/_/g, ' ')}`);
+                                cargarBultos();
+                              } catch (error) {
+                                toast.error('Error al actualizar estado');
+                                console.error(error);
+                              }
+                            }}
+                          >
+                            <option value="-" disabled>-</option>
+                            <option value="EN_BUEN_ESTADO">EN BUEN ESTADO</option>
+                            <option value="FALTANTE">FALTANTE</option>
+                            <option value="DETERIORADO">DETERIORADO</option>
+                          </select>
+                        ) : (
+                          b.estadoRecepcion.replace(/_/g, " ")
+                        )}
+                      </td>
                     </tr>
                   ))}
               </tbody>
@@ -323,39 +378,32 @@ function Recepcion() {
           </div>
         </div>
 
-        <EstadoRecepcionModal
-          isOpen={modalEditarOpen}
-          onClose={() => setModalEditarOpen(false)}
-          bultosFiltrados={bultosFiltrados}
-          onActualizado={() => cargarBultos()}
-        />
-
         <div className="flex justify-center gap-4 mt-6">
 
           <button
-            className={`${filtroFecha && filtroCodigoCarga
-              ? 'bg-yellow-400 hover:bg-yellow-500 cursor-pointer'
-              : 'bg-gray-400 cursor-not-allowed'
-              } text-black font-bold py-2 px-4 rounded transition`}
-            onClick={() => setModalEditarOpen(true)}
-            disabled={!(filtroFecha && filtroCodigoCarga)}
-          >
-            Editar Estado
-          </button>
-
-          <button
-            className={`${filtroFecha && filtroCodigoCarga
+            className={`${filtroFecha && filtroCodigoCarga && !cargaCompleta
               ? 'bg-green-500 hover:bg-green-600 cursor-pointer'
               : 'bg-gray-400 cursor-not-allowed'
               } text-black font-bold py-2 px-4 rounded transition`}
             onClick={() => setMostrarConfirmacion(true)}
-            disabled={!(filtroFecha && filtroCodigoCarga)}
+            disabled={!(filtroFecha && filtroCodigoCarga && !cargaCompleta)}
           >
             Completar Carga
           </button>
 
           <button
-            className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded transition"
+            className={`${filtroFecha && filtroCodigoCarga && !cargaCompleta
+              ? 'bg-red-500 hover:bg-red-600 cursor-pointer'
+              : 'bg-gray-400 cursor-not-allowed'
+              } text-white font-bold py-2 px-6 rounded transition`}
+            onClick={() => setMostrarModalTerminar(true)}
+            disabled={!(filtroFecha && filtroCodigoCarga && !cargaCompleta)}
+          >
+            Terminar Carga
+          </button>
+
+          <button
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition"
             onClick={() => {
               setModalReporteOpen(true);
               setFechaSeleccionada('');
@@ -477,19 +525,6 @@ function Recepcion() {
           </div>
         </div>
       )}
-
-      <div className="flex justify-center mt-4">
-        <button
-          className={`${filtroFecha && filtroCodigoCarga && !cargaCompleta
-            ? 'bg-red-500 hover:bg-red-600 cursor-pointer'
-            : 'bg-gray-400 cursor-not-allowed'
-            } text-white font-bold py-2 px-6 rounded transition`}
-          onClick={() => setMostrarModalTerminar(true)}
-          disabled={!(filtroFecha && filtroCodigoCarga && !cargaCompleta)}
-        >
-          Terminar Carga
-        </button>
-      </div>
 
       {mostrarModalTerminar && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

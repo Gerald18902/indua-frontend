@@ -6,7 +6,7 @@ const VerLocalesModal = ({ isOpen, onClose, idRuta }) => {
 
   useEffect(() => {
     if (isOpen && idRuta) {
-      axios.get(`http://18.221.174.4:8080/api/rutas/locales-de-ruta/${idRuta}`)
+      axios.get(`http://localhost:8080/api/rutas/locales-de-ruta/${idRuta}`)
         .then(res => {
           setLocales(res.data || []);
         })

@@ -12,7 +12,7 @@ const GestionUsuarios = () => {
   const [usuarioEditar, setUsuarioEditar] = useState(null)
 
   const cargarUsuarios = () => {
-    fetch('http://18.221.174.4:8080/api/usuarios')
+    fetch('http://localhost:8080/api/usuarios')
       .then(res => res.json())
       .then(data => setUsuarios(data))
       .catch(err => console.error('Error al cargar usuarios:', err))
@@ -40,8 +40,8 @@ const GestionUsuarios = () => {
   const guardarUsuario = (data) => {
     const metodo = usuarioEditar ? 'PUT' : 'POST'
     const url = usuarioEditar
-      ? `http://18.221.174.4:8080/api/usuarios/${usuarioEditar.id_usuario}`
-      : 'http://18.221.174.4:8080/api/auth/register'
+      ? `http://localhost:8080/api/usuarios/${usuarioEditar.id_usuario}`
+      : 'http://localhost:8080/api/auth/register'
 
     fetch(url, {
       method: metodo,
@@ -64,7 +64,7 @@ const GestionUsuarios = () => {
     <Layout>
       {/* Encabezado */}
       <div className="relative w-full max-w-5xl mx-auto mt-4 flex items-center justify-start">
-        <BotonVolver />
+        <BotonVolver ruta="/administracion"/>
         <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-black dark:text-white text-center">
           Gestión de Usuarios
         </h1>

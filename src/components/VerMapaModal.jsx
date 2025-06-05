@@ -17,7 +17,7 @@ const VerMapaModal = ({ idRuta, onClose }) => {
 
   useEffect(() => {
     if (idRuta) {
-      axios.get(`http://18.221.174.4:8080/api/rutas/mapa-ruta/${idRuta}`)
+      axios.get(`http://localhost:8080/api/rutas/mapa-ruta/${idRuta}`)
         .then(res => setRuta(res.data))
         .catch(err => {
           console.error('Error al cargar ruta:', err);

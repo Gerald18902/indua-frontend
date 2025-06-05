@@ -26,7 +26,7 @@ function Despacho() {
 
   const cargarBultos = async () => {
     try {
-      const res = await axios.get("http://18.221.174.4:8080/api/bultos/en-camino");
+      const res = await axios.get("http://localhost:8080/api/bultos/en-camino");
       const data = Array.isArray(res.data) ? res.data : [];
       setBultos(data);
     } catch (err) {
@@ -37,7 +37,7 @@ function Despacho() {
 
   const cargarCargas = () => {
     axios
-      .get("http://18.221.174.4:8080/api/cargas")
+      .get("http://localhost:8080/api/cargas")
       .then((res) => {
         const data = res.data;
         setCargas(data);
@@ -81,7 +81,7 @@ function Despacho() {
       }
 
       await axios.put(
-        "http://18.221.174.4:8080/api/bultos/actualizar-despacho-masivo",
+        "http://localhost:8080/api/bultos/actualizar-despacho-masivo",
         {
           codigosBulto: codigos,
           nuevoEstado: "ENTREGADO_EN_BUEN_ESTADO",
@@ -120,7 +120,7 @@ function Despacho() {
   return (
     <Layout>
       <div className="relative w-full max-w-5xl mx-auto mt-4 flex items-center justify-start">
-        <BotonVolver />
+        <BotonVolver ruta="/dashboard"/>
         <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-black dark:text-white text-center">
           Módulo de Despacho
         </h1>
@@ -215,8 +215,8 @@ function Despacho() {
         >
           Gestión de Actas
         </button>
-        <button className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
-          Reportes
+        <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition">
+          Generar Reporte
         </button>
       </div>
 
