@@ -3,9 +3,9 @@ import axios from "axios";
 import Layout from "../components/Layout";
 import BotonVolver from "../components/BotonVolver";
 import { toast } from "react-toastify";
+import ImagenModal from "../components/ImagenModal";
 
 export default function Actas() {
-  
   const [actas, setActas] = useState([]);
   const [filtros, setFiltros] = useState({
     codigoBulto: "",
@@ -15,6 +15,8 @@ export default function Actas() {
   });
   const [actualizando, setActualizando] = useState(null);
   const [foto, setFoto] = useState(null);
+  const [previewURL, setPreviewURL] = useState(null);
+  const [imagenAmpliada, setImagenAmpliada] = useState(null);
 
   const fetchActas = useCallback(() => {
     const params = new URLSearchParams();
@@ -37,6 +39,16 @@ export default function Actas() {
     fetchActas();
   }, [fetchActas]);
 
+  useEffect(() => {
+    if (foto) {
+      const url = URL.createObjectURL(foto);
+      setPreviewURL(url);
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setPreviewURL(null);
+    }
+  }, [foto]);
+
   const handleActualizar = async () => {
     const formData = new FormData();
     formData.append("estadoMerma", actualizando.estadoMerma);
@@ -51,6 +63,7 @@ export default function Actas() {
       toast.success("Acta actualizada");
       setActualizando(null);
       setFoto(null);
+      setPreviewURL(null);
       fetchActas();
     } catch (err) {
       console.error(err);
@@ -61,7 +74,7 @@ export default function Actas() {
   return (
     <Layout>
       <div className="relative w-full max-w-5xl mx-auto mt-4 flex items-center justify-start">
-        <BotonVolver ruta="/despacho"/>
+        <BotonVolver ruta="/despacho" />
         <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-black dark:text-white text-center">
           Módulo de Actas
         </h1>
@@ -84,18 +97,10 @@ export default function Actas() {
             setFiltros({ ...filtros, tipoMerma: e.target.value })
           }
         >
-          <option className="text-black dark:text-white" value="">
-            Tipo Merma
-          </option>
-          <option className="text-black dark:text-white" value="DETERIORADO">
-            DETERIORADO
-          </option>
-          <option className="text-black dark:text-white" value="DISCREPANCIA">
-            DISCREPANCIA
-          </option>
-          <option className="text-black dark:text-white" value="FALTANTE">
-            FALTANTE
-          </option>
+          <option value="">Tipo Merma</option>
+          <option value="DETERIORADO">DETERIORADO</option>
+          <option value="DISCREPANCIA">DISCREPANCIA</option>
+          <option value="FALTANTE">FALTANTE</option>
         </select>
         <select
           className="bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded text-black dark:text-white"
@@ -104,24 +109,11 @@ export default function Actas() {
             setFiltros({ ...filtros, estadoMerma: e.target.value })
           }
         >
-          <option className="text-black dark:text-white" value="">
-            Estado
-          </option>
-          <option
-            className="text-black dark:text-white"
-            value="MERMA CON SUSTENTO"
-          >
-            MERMA CON SUSTENTO
-          </option>
-          <option
-            className="text-black dark:text-white"
-            value="PENDIENTE DE ENVÍO"
-          >
-            PENDIENTE DE ENVÍO
-          </option>
-          <option className="text-black dark:text-white" value="REGULARIZADO">
-            REGULARIZADO
-          </option>
+          <option value="">Estado</option>
+          <option value="MERMA SIN SUSTENTO">MERMA SIN SUSTENTO</option>
+          <option value="MERMA CON SUSTENTO">MERMA CON SUSTENTO</option>
+          <option value="PENDIENTE DE ENVÍO">PENDIENTE DE ENVÍO</option>
+          <option value="REGULARIZADO">REGULARIZADO</option>
         </select>
         <input
           type="date"
@@ -170,11 +162,16 @@ export default function Actas() {
                       <img
                         src={`http://localhost:8080/uploads/${a.fotoRegistro}`}
                         alt="registro"
+                        onClick={() =>
+                          setImagenAmpliada(
+                            `http://localhost:8080/uploads/${a.fotoRegistro}`
+                          )
+                        }
                         onError={(e) => {
                           e.target.onerror = null;
                           e.target.src = "/img/placeholder.png";
                         }}
-                        className="w-12 h-12 object-cover mx-auto"
+                        className="w-12 h-12 object-cover mx-auto cursor-pointer hover:scale-105 transition"
                       />
                     )}
                   </td>
@@ -183,18 +180,27 @@ export default function Actas() {
                       <img
                         src={`http://localhost:8080/uploads/${a.fotoRegularizacion}`}
                         alt="regularizacion"
+                        onClick={() =>
+                          setImagenAmpliada(
+                            `http://localhost:8080/uploads/${a.fotoRegularizacion}`
+                          )
+                        }
                         onError={(e) => {
                           e.target.onerror = null;
                           e.target.src = "/img/placeholder.png";
                         }}
-                        className="w-12 h-12 object-cover mx-auto"
+                        className="w-12 h-12 object-cover mx-auto cursor-pointer hover:scale-105 transition"
                       />
                     )}
                   </td>
                   <td className="px-4 py-2">
                     <button
                       className="bg-yellow-400 hover:bg-yellow-500 px-2 py-1 rounded"
-                      onClick={() => setActualizando(a)}
+                      onClick={() => {
+                        setActualizando(a);
+                        setFoto(null);
+                        setPreviewURL(null);
+                      }}
                     >
                       Editar
                     </button>
@@ -212,72 +218,68 @@ export default function Actas() {
             Editar Acta: {actualizando.codigoBulto}
           </h3>
 
-          <div className="flex flex-wrap gap-4 items-center justify-start md:justify-start">
-            <select
-              className="p-2 rounded border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-black dark:text-white"
-              value={actualizando.estadoMerma}
-              onChange={(e) =>
-                setActualizando({
-                  ...actualizando,
-                  estadoMerma: e.target.value,
-                })
-              }
-            >
-              <option
-                className="text-black dark:text-white"
-                value="MERMA CON SUSTENTO"
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <div className="flex flex-col gap-4">
+              <select
+                className="p-2 rounded border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-black dark:text-white"
+                value={actualizando.estadoMerma}
+                onChange={(e) =>
+                  setActualizando({
+                    ...actualizando,
+                    estadoMerma: e.target.value,
+                  })
+                }
               >
-                MERMA CON SUSTENTO
-              </option>
-              <option
-                className="text-black dark:text-white"
-                value="PENDIENTE DE ENVÍO"
-              >
-                PENDIENTE DE ENVÍO
-              </option>
-              <option
-                className="text-black dark:text-white"
-                value="REGULARIZADO"
-              >
-                REGULARIZADO
-              </option>
-            </select>
+                <option value="MERMA SIN SUSTENTO">MERMA SIN SUSTENTO</option>
+                <option value="MERMA CON SUSTENTO">MERMA CON SUSTENTO</option>
+                <option value="PENDIENTE DE ENVÍO">PENDIENTE DE ENVÍO</option>
+                <option value="REGULARIZADO">REGULARIZADO</option>
+              </select>
 
-            <select
-              className="p-2 rounded border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-black dark:text-white"
-              value={actualizando.responsabilidad || ""}
-              onChange={(e) =>
-                setActualizando({
-                  ...actualizando,
-                  responsabilidad: e.target.value,
-                })
-              }
-            >
-              <option className="text-black dark:text-white" value="">
-                Responsabilidad
-              </option>
-              <option className="text-black dark:text-white" value="ORIGEN">
-                ORIGEN
-              </option>
-              <option className="text-black dark:text-white" value="ATARAMA">
-                ATARAMA
-              </option>
-              <option className="text-black dark:text-white" value="ATN">
-                ATN
-              </option>
-              <option className="text-black dark:text-white" value="ISL">
-                ISL
-              </option>
-              <option className="text-black dark:text-white" value="TERCERO">
-                TERCERO
-              </option>
-            </select>
+              <select
+                className="p-2 rounded border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-black dark:text-white"
+                value={actualizando.responsabilidad || ""}
+                onChange={(e) =>
+                  setActualizando({
+                    ...actualizando,
+                    responsabilidad: e.target.value,
+                  })
+                }
+              >
+                <option value="">Responsabilidad</option>
+                <option value="ORIGEN">ORIGEN</option>
+                <option value="ATARAMA">ATARAMA</option>
+                <option value="ATN">ATN</option>
+                <option value="ISL">ISL</option>
+                <option value="TERCERO">TERCERO</option>
+              </select>
 
-            <input
-              type="file"
-              className="p-2 rounded border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-black dark:text-white"
-              onChange={(e) => setFoto(e.target.files[0])}
-            />
+              <label className="flex flex-col items-start cursor-pointer">
+                <span className="mb-1 text-black dark:text-white font-semibold">
+                  Cargar imagen
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="bg-gray-100 dark:bg-gray-800 text-black dark:text-white p-2 rounded border border-gray-300 dark:border-gray-600"
+                  onChange={(e) => setFoto(e.target.files[0])}
+                />
+              </label>
+            </div>
+
+            <div className="flex justify-center items-center border-2 border-dashed border-gray-400 rounded-lg p-4 h-60">
+              {previewURL ? (
+                <img
+                  src={previewURL}
+                  alt="Previsualización"
+                  className="max-h-full max-w-full object-contain rounded shadow"
+                />
+              ) : (
+                <span className="text-sm text-gray-500 dark:text-gray-300">
+                  No se ha seleccionado imagen
+                </span>
+              )}
+            </div>
           </div>
 
           <div className="flex justify-center gap-6 mt-6">
@@ -289,13 +291,23 @@ export default function Actas() {
             </button>
             <button
               className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded font-semibold border border-red-700"
-              onClick={() => setActualizando(null)}
+              onClick={() => {
+                setActualizando(null);
+                setFoto(null);
+                setPreviewURL(null);
+              }}
             >
               Cancelar
             </button>
           </div>
         </div>
       )}
+
+      <ImagenModal
+        isOpen={!!imagenAmpliada}
+        onClose={() => setImagenAmpliada(null)}
+        src={imagenAmpliada}
+      />
     </Layout>
   );
 }

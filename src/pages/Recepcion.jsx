@@ -1,13 +1,13 @@
-import { useEffect, useState, useMemo } from 'react';
-import axios from 'axios';
-import { toast } from 'react-toastify'
-import Layout from '../components/Layout';
-import BotonVolver from '../components/BotonVolver'
+import { useEffect, useState, useMemo } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+import Layout from "../components/Layout";
+import BotonVolver from "../components/BotonVolver";
 
-import ReporteRecepcionPDF from '../components/ReporteRecepcionPDF';
+import ReporteRecepcionPDF from "../components/ReporteRecepcionPDF";
 
 function Recepcion() {
-  const [bultos, setBultos] = useState([])
+  const [bultos, setBultos] = useState([]);
   const [cargas, setCargas] = useState([]);
 
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
@@ -18,39 +18,47 @@ function Recepcion() {
   const [faltantesPorLocal, setFaltantesPorLocal] = useState({});
   const [deterioradosPorLocal, setDeterioradosPorLocal] = useState({});
 
-  const [filtroFecha, setFiltroFecha] = useState('');
-  const [filtroCodigoCarga, setFiltroCodigoCarga] = useState('');
+  const [filtroFecha, setFiltroFecha] = useState("");
+  const [filtroCodigoCarga, setFiltroCodigoCarga] = useState("");
 
   const [modalReporteOpen, setModalReporteOpen] = useState(false);
-  const [fechaSeleccionada, setFechaSeleccionada] = useState('');
-  const [codigoSeleccionado, setCodigoSeleccionado] = useState('');
+  const [fechaSeleccionada, setFechaSeleccionada] = useState("");
+  const [codigoSeleccionado, setCodigoSeleccionado] = useState("");
   const [fechasDisponibles, setFechasDisponibles] = useState([]);
   const [cargasPorFecha, setCargasPorFecha] = useState({});
 
   const [mostrarModalTerminar, setMostrarModalTerminar] = useState(false);
 
-  const [filtroCodigoBulto, setFiltroCodigoBulto] = useState('');
+  const [filtroCodigoBulto, setFiltroCodigoBulto] = useState("");
 
   useEffect(() => {
     cargarBultos();
     cargarCargas();
+
+    // 👇 Útil para depurar errores de ID o fechas
+    console.log("✅ useEffect inicial: Se cargaron bultos y cargas");
   }, []);
 
   useEffect(() => {
+    console.log("📦 Cargas actualizadas:", cargas);
+  }, [cargas]);
+
+  useEffect(() => {
     if (!filtroFecha || !filtroCodigoCarga) {
-      setFiltroCodigoBulto('');
+      setFiltroCodigoBulto("");
     }
   }, [filtroFecha, filtroCodigoCarga]);
 
   const cargarBultos = () => {
-    axios.get('http://localhost:8080/api/bultos')
-      .then(response => {
+    axios
+      .get("http://localhost:8080/api/bultos")
+      .then((response) => {
         const data = Array.isArray(response.data) ? response.data : [];
 
         setBultos(data);
       })
-      .catch(error => {
-        console.error('Error al cargar bultos:', error);
+      .catch((error) => {
+        console.error("Error al cargar bultos:", error);
         setBultos([]);
       });
   };
@@ -63,7 +71,7 @@ function Recepcion() {
 
     // Agrupa bultos por código de carga
     const agrupadosPorCarga = {};
-    bultos.forEach(b => {
+    bultos.forEach((b) => {
       if (!agrupadosPorCarga[b.codigoCarga]) {
         agrupadosPorCarga[b.codigoCarga] = [];
       }
@@ -71,45 +79,51 @@ function Recepcion() {
     });
 
     // Evalúa si todos los bultos de la carga tienen estadoRecepcion definido
-    cargas.forEach(carga => {
+    cargas.forEach((carga) => {
       const bultosDeCarga = agrupadosPorCarga[carga.codigoCarga] || [];
-      const todosDefinidos = bultosDeCarga.length > 0 && bultosDeCarga.every(
-        b => b.estadoRecepcion !== null &&
-          b.estadoRecepcion !== undefined &&
-          b.estadoRecepcion !== 'null' &&
-          b.estadoRecepcion !== '' &&
-          b.estadoRecepcion !== '-');
+      const todosDefinidos =
+        bultosDeCarga.length > 0 &&
+        bultosDeCarga.every(
+          (b) =>
+            b.estadoRecepcion !== null &&
+            b.estadoRecepcion !== undefined &&
+            b.estadoRecepcion !== "null" &&
+            b.estadoRecepcion !== "" &&
+            b.estadoRecepcion !== "-"
+        );
       if (todosDefinidos) {
         cargasValidas.add(carga.codigoCarga);
       }
     });
 
-    return cargas.filter(c => cargasValidas.has(c.codigoCarga));
+    return cargas.filter((c) => cargasValidas.has(c.codigoCarga));
   }, [bultos, cargas]);
 
   const cargaCompleta = useMemo(() => {
-    return cargasSinNulos.some(c => c.codigoCarga === filtroCodigoCarga);
+    return cargasSinNulos.some((c) => c.codigoCarga === filtroCodigoCarga);
   }, [cargasSinNulos, filtroCodigoCarga]);
 
-  const bultosFiltrados = bultos.filter(b => {
+  const bultosFiltrados = bultos.filter((b) => {
     if (!filtroFecha) return true;
-    const carga = cargas.find(c => c.codigoCarga === b.codigoCarga);
+    const carga = cargas.find((c) => c.codigoCarga === b.codigoCarga);
     if (!carga || carga.fechaCarga !== filtroFecha) return false;
 
     if (filtroCodigoCarga && b.codigoCarga !== filtroCodigoCarga) return false;
 
-    if (filtroCodigoBulto && !b.codigoBulto.includes(filtroCodigoBulto)) return false;
+    if (filtroCodigoBulto && !b.codigoBulto.includes(filtroCodigoBulto))
+      return false;
 
     return true;
   });
 
   const cargarCargas = () => {
-    axios.get('http://localhost:8080/api/cargas')
-      .then(response => {
+    axios
+      .get("http://localhost:8080/api/cargas")
+      .then((response) => {
         const data = response.data;
         setCargas(Array.isArray(data) ? data : []);
         const agrupadas = {};
-        data.forEach(c => {
+        data.forEach((c) => {
           const fecha = c.fechaCarga;
           if (!agrupadas[fecha]) agrupadas[fecha] = [];
           agrupadas[fecha].push(c);
@@ -119,18 +133,20 @@ function Recepcion() {
           Object.keys(agrupadas).sort((a, b) => new Date(b) - new Date(a))
         );
       })
-      .catch(error => {
-        console.error('Error al cargar cargas:', error);
+      .catch((error) => {
+        console.error("Error al cargar cargas:", error);
         setCargas([]);
       });
   };
 
   const agruparBultosPorLocal = (estado, reporte) => {
     if (!reporte || !reporte.bultosProblema) return {};
-    const filtrados = reporte.bultosProblema.filter(b => b.estadoRecepcion === estado);
+    const filtrados = reporte.bultosProblema.filter(
+      (b) => b.estadoRecepcion === estado
+    );
     const agrupados = {};
 
-    filtrados.forEach(b => {
+    filtrados.forEach((b) => {
       const clave = `${b.nombreLocal} - ${b.codigoLocal}`;
       if (!agrupados[clave]) {
         agrupados[clave] = [];
@@ -148,21 +164,30 @@ function Recepcion() {
 
   const handleGenerarReporteDesdeCodigo = async () => {
     try {
-      const carga = cargasPorFecha[fechaSeleccionada]?.find(c => c.codigoCarga === codigoSeleccionado);
-      if (!carga) return alert('Carga no encontrada');
+      const carga = cargasPorFecha[fechaSeleccionada]?.find(
+        (c) => c.codigoCarga === codigoSeleccionado
+      );
 
-      const reporteRes = await axios.get(`http://localhost:8080/api/cargas/reporte-recepcion/${carga.idCarga}`);
+      if (!carga || !carga.idCarga) {
+        toast.error("Carga no encontrada o ID inválido");
+        return;
+      }
+
+      const reporteRes = await axios.get(
+        `http://localhost:8080/api/cargas/reporte-recepcion/${carga.idCarga}`
+      );
       const reporte = reporteRes.data;
 
+      // Agrupar bultos deteriorados y faltantes
       setCodigoParaReporte(carga.codigoCarga);
       setIdCargaReporte(carga.idCarga);
-      setFaltantesPorLocal(agruparBultosPorLocal('FALTANTE', reporte));
-      setDeterioradosPorLocal(agruparBultosPorLocal('DETERIORADO', reporte));
+      setFaltantesPorLocal(agruparBultosPorLocal("FALTANTE", reporte));
+      setDeterioradosPorLocal(agruparBultosPorLocal("DETERIORADO", reporte));
       setMostrarReporte(true);
       setModalReporteOpen(false);
     } catch (err) {
-      toast.error('Error al generar el reporte.');
-      console.error(err);
+      toast.error("Error al generar el reporte.");
+      console.error("Error al generar el reporte:", err);
     }
   };
 
@@ -170,28 +195,28 @@ function Recepcion() {
     if (!filtroCodigoCarga) return;
 
     try {
-      await axios.put('http://localhost:8080/api/bultos/completar-carga', {
+      await axios.put("http://localhost:8080/api/bultos/completar-carga", {
         codigoCarga: filtroCodigoCarga,
       });
 
-      toast.success('Carga completada con éxito');
+      toast.success("Carga completada con éxito");
       cargarBultos(); // refrescar tabla
     } catch (error) {
-      toast.error('Hubo un error al completar la carga');
+      toast.error("Hubo un error al completar la carga");
       console.error(error);
     }
   };
 
   const handleTerminarCarga = async () => {
     try {
-      await axios.put('http://localhost:8080/api/bultos/terminar-carga', {
+      await axios.put("http://localhost:8080/api/bultos/terminar-carga", {
         codigoCarga: filtroCodigoCarga,
       });
 
-      toast.success('Carga terminada con éxito');
+      toast.success("Carga terminada con éxito");
       cargarBultos();
     } catch (error) {
-      toast.error('Error al terminar la carga');
+      toast.error("Error al terminar la carga");
       console.error(error);
     } finally {
       setMostrarModalTerminar(false);
@@ -200,9 +225,8 @@ function Recepcion() {
 
   return (
     <Layout>
-
       <div className="relative w-full max-w-5xl mx-auto mt-4 flex items-center justify-start">
-        <BotonVolver ruta="/dashboard"/>
+        <BotonVolver ruta="/dashboard" />
         <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-black dark:text-white text-center">
           Módulo de Recepción
         </h1>
@@ -211,38 +235,49 @@ function Recepcion() {
       <div className="flex flex-col items-center justify-start p-6 text-black dark:text-white transition-colors">
         <div className="flex flex-wrap gap-4 mb-4">
           <div>
-            <label className="block text-black dark:text-white text-sm mb-1">Filtrar por fecha:</label>
+            <label className="block text-black dark:text-white text-sm mb-1">
+              Filtrar por fecha:
+            </label>
             <select
               className="bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 rounded transition-colors"
               value={filtroFecha}
-              onChange={e => {
+              onChange={(e) => {
                 setFiltroFecha(e.target.value);
-                setFiltroCodigoCarga(''); // reinicia código si cambia fecha
+                setFiltroCodigoCarga(""); // reinicia código si cambia fecha
               }}
             >
               <option value="">Todas</option>
               {fechasDisponibles.map((fecha, i) => (
-                <option key={i} value={fecha}>{fecha}</option>
+                <option key={i} value={fecha}>
+                  {fecha}
+                </option>
               ))}
             </select>
           </div>
 
           {filtroFecha && (
             <div>
-              <label className="block text-black dark:text-white text-sm mb-1">Filtrar por código de carga:</label>
+              <label className="block text-black dark:text-white text-sm mb-1">
+                Filtrar por código de carga:
+              </label>
               <select
                 className="bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 rounded transition-colors"
                 value={filtroCodigoCarga}
-                onChange={e => setFiltroCodigoCarga(e.target.value)}
+                onChange={(e) => setFiltroCodigoCarga(e.target.value)}
               >
                 <option value="">Todos</option>
                 {cargasPorFecha[filtroFecha]
                   ?.slice() // 👈 sin filtrar, solo ordenar
                   .sort((a, b) =>
-                    a.codigoCarga.localeCompare(b.codigoCarga, undefined, { numeric: true, sensitivity: 'base' })
+                    a.codigoCarga.localeCompare(b.codigoCarga, undefined, {
+                      numeric: true,
+                      sensitivity: "base",
+                    })
                   )
                   .map((c, i) => (
-                    <option key={i} value={c.codigoCarga}>{c.codigoCarga}</option>
+                    <option key={i} value={c.codigoCarga}>
+                      {c.codigoCarga}
+                    </option>
                   ))}
               </select>
             </div>
@@ -251,21 +286,23 @@ function Recepcion() {
 
         {filtroFecha && filtroCodigoCarga && (
           <div className="w-full max-w-5xl flex justify-between items-end mb-4">
-
             {/* Input escanear (izquierda) */}
             <div className="flex flex-col">
-              <label className="text-sm text-black dark:text-white mb-1">Escanear código de bulto:</label>
+              <label className="text-sm text-black dark:text-white mb-1">
+                Escanear código de bulto:
+              </label>
               <input
                 type="text"
-                className={`px-4 py-2 rounded transition-colors ${cargaCompleta
-                  ? 'bg-gray-300 dark:bg-gray-600 text-black dark:text-white cursor-not-allowed'
-                  : 'bg-gray-100 dark:bg-gray-800 text-black dark:text-white'
-                  }`}
+                className={`px-4 py-2 rounded transition-colors ${
+                  cargaCompleta
+                    ? "bg-gray-300 dark:bg-gray-600 text-black dark:text-white cursor-not-allowed"
+                    : "bg-gray-100 dark:bg-gray-800 text-black dark:text-white"
+                }`}
                 placeholder="Ej: BANSA1234567890"
                 disabled={cargaCompleta}
                 onKeyDown={async (e) => {
                   if (cargaCompleta) return;
-                  if (e.key === 'Enter') {
+                  if (e.key === "Enter") {
                     const codigo = e.target.value.trim().toUpperCase();
                     const regex = /^BANSA\d{10}$/;
 
@@ -275,16 +312,21 @@ function Recepcion() {
                     }
 
                     try {
-                      await axios.put(`http://localhost:8080/api/bultos/actualizar-estado`, {
-                        codigoBulto: codigo,
-                        nuevoEstado: 'EN_BUEN_ESTADO',
-                      });
+                      await axios.put(
+                        `http://localhost:8080/api/bultos/actualizar-estado`,
+                        {
+                          codigoBulto: codigo,
+                          nuevoEstado: "EN_BUEN_ESTADO",
+                        }
+                      );
 
-                      toast.success(`Estado del bulto ${codigo} actualizado a EN BUEN ESTADO`);
-                      e.target.value = '';
+                      toast.success(
+                        `Estado del bulto ${codigo} actualizado a EN BUEN ESTADO`
+                      );
+                      e.target.value = "";
                       cargarBultos();
                     } catch (error) {
-                      toast.error('Error al actualizar el estado del bulto');
+                      toast.error("Error al actualizar el estado del bulto");
                       console.error(error);
                     }
                   }
@@ -294,20 +336,24 @@ function Recepcion() {
 
             {/* Input buscar (derecha) */}
             <div className="flex flex-col text-right">
-              <label className="text-sm text-black dark:text-white mb-1">Editar estado:</label>
+              <label className="text-sm text-black dark:text-white mb-1">
+                Editar estado:
+              </label>
               <input
                 type="text"
-                className={`px-4 py-2 rounded transition-colors ${cargaCompleta
-                  ? 'bg-gray-300 dark:bg-gray-600 text-black dark:text-white cursor-not-allowed'
-                  : 'bg-gray-100 dark:bg-gray-800 text-black dark:text-white'
-                  }`}
+                className={`px-4 py-2 rounded transition-colors ${
+                  cargaCompleta
+                    ? "bg-gray-300 dark:bg-gray-600 text-black dark:text-white cursor-not-allowed"
+                    : "bg-gray-100 dark:bg-gray-800 text-black dark:text-white"
+                }`}
                 placeholder="Ej: BANSA1234..."
                 disabled={cargaCompleta}
                 value={filtroCodigoBulto}
-                onChange={(e) => setFiltroCodigoBulto(e.target.value.trim().toUpperCase())}
+                onChange={(e) =>
+                  setFiltroCodigoBulto(e.target.value.trim().toUpperCase())
+                }
               />
             </div>
-
           </div>
         )}
 
@@ -326,10 +372,14 @@ function Recepcion() {
                 {bultosFiltrados
                   .slice()
                   .sort((a, b) => {
-                    const compareCarga = a.codigoCarga.localeCompare(b.codigoCarga);
+                    const compareCarga = a.codigoCarga.localeCompare(
+                      b.codigoCarga
+                    );
                     if (compareCarga !== 0) return compareCarga;
 
-                    const compareLocal = a.nombreLocal.localeCompare(b.nombreLocal);
+                    const compareLocal = a.nombreLocal.localeCompare(
+                      b.nombreLocal
+                    );
                     if (compareLocal !== 0) return compareLocal;
 
                     return a.codigoBulto.localeCompare(b.codigoBulto);
@@ -337,7 +387,9 @@ function Recepcion() {
                   .map((b, i) => (
                     <tr key={i} className="text-center border-t">
                       <td className="px-4 py-2">{b.codigoBulto}</td>
-                      <td className="px-4 py-2">{b.nombreLocal} - {b.codigoLocal}</td>
+                      <td className="px-4 py-2">
+                        {b.nombreLocal} - {b.codigoLocal}
+                      </td>
                       <td className="px-4 py-2">{b.codigoCarga}</td>
                       <td className="px-4 py-2 text-black text-center">
                         {filtroCodigoBulto ? (
@@ -346,24 +398,36 @@ function Recepcion() {
                             value={b.estadoRecepcion}
                             onChange={async (e) => {
                               const nuevoEstado = e.target.value;
-                              if (nuevoEstado === '-') return;
+                              if (nuevoEstado === "-") return;
 
                               try {
-                                await axios.put(`http://localhost:8080/api/bultos/actualizar-estado`, {
-                                  codigoBulto: b.codigoBulto,
-                                  nuevoEstado,
-                                });
+                                await axios.put(
+                                  `http://localhost:8080/api/bultos/actualizar-estado`,
+                                  {
+                                    codigoBulto: b.codigoBulto,
+                                    nuevoEstado,
+                                  }
+                                );
 
-                                toast.success(`Estado actualizado a ${nuevoEstado.replace(/_/g, ' ')}`);
+                                toast.success(
+                                  `Estado actualizado a ${nuevoEstado.replace(
+                                    /_/g,
+                                    " "
+                                  )}`
+                                );
                                 cargarBultos();
                               } catch (error) {
-                                toast.error('Error al actualizar estado');
+                                toast.error("Error al actualizar estado");
                                 console.error(error);
                               }
                             }}
                           >
-                            <option value="-" disabled>-</option>
-                            <option value="EN_BUEN_ESTADO">EN BUEN ESTADO</option>
+                            <option value="-" disabled>
+                              -
+                            </option>
+                            <option value="EN_BUEN_ESTADO">
+                              EN BUEN ESTADO
+                            </option>
                             <option value="FALTANTE">FALTANTE</option>
                             <option value="DETERIORADO">DETERIORADO</option>
                           </select>
@@ -379,12 +443,12 @@ function Recepcion() {
         </div>
 
         <div className="flex justify-center gap-4 mt-6">
-
           <button
-            className={`${filtroFecha && filtroCodigoCarga && !cargaCompleta
-              ? 'bg-green-500 hover:bg-green-600 cursor-pointer'
-              : 'bg-gray-400 cursor-not-allowed'
-              } text-black font-bold py-2 px-4 rounded transition`}
+            className={`${
+              filtroFecha && filtroCodigoCarga && !cargaCompleta
+                ? "bg-green-500 hover:bg-green-600 cursor-pointer"
+                : "bg-gray-400 cursor-not-allowed"
+            } text-black font-bold py-2 px-4 rounded transition`}
             onClick={() => setMostrarConfirmacion(true)}
             disabled={!(filtroFecha && filtroCodigoCarga && !cargaCompleta)}
           >
@@ -392,10 +456,11 @@ function Recepcion() {
           </button>
 
           <button
-            className={`${filtroFecha && filtroCodigoCarga && !cargaCompleta
-              ? 'bg-red-500 hover:bg-red-600 cursor-pointer'
-              : 'bg-gray-400 cursor-not-allowed'
-              } text-white font-bold py-2 px-6 rounded transition`}
+            className={`${
+              filtroFecha && filtroCodigoCarga && !cargaCompleta
+                ? "bg-red-500 hover:bg-red-600 cursor-pointer"
+                : "bg-gray-400 cursor-not-allowed"
+            } text-white font-bold py-2 px-6 rounded transition`}
             onClick={() => setMostrarModalTerminar(true)}
             disabled={!(filtroFecha && filtroCodigoCarga && !cargaCompleta)}
           >
@@ -406,8 +471,8 @@ function Recepcion() {
             className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition"
             onClick={() => {
               setModalReporteOpen(true);
-              setFechaSeleccionada('');
-              setCodigoSeleccionado('');
+              setFechaSeleccionada("");
+              setCodigoSeleccionado("");
             }}
           >
             Generar Reporte
@@ -417,7 +482,6 @@ function Recepcion() {
         {modalReporteOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="relative bg-white dark:bg-gray-900 text-black dark:text-white transition-colors rounded-xl shadow-lg w-[90%] max-w-md p-8">
-
               <button
                 onClick={() => setModalReporteOpen(false)}
                 className="absolute top-3 right-3 text-black dark:text-white text-xl font-bold hover:text-red-500"
@@ -426,7 +490,9 @@ function Recepcion() {
               </button>
 
               <div className="flex flex-col items-center mb-6">
-                <h2 className="text-xl font-bold text-green-400">Selecciona Carga</h2>
+                <h2 className="text-xl font-bold text-green-400">
+                  Selecciona Carga
+                </h2>
               </div>
 
               <label className="block text-sm mb-1">Fecha de carga:</label>
@@ -435,12 +501,14 @@ function Recepcion() {
                 value={fechaSeleccionada}
                 onChange={(e) => {
                   setFechaSeleccionada(e.target.value);
-                  setCodigoSeleccionado('');
+                  setCodigoSeleccionado("");
                 }}
               >
                 <option value="">-- Selecciona una fecha --</option>
                 {fechasDisponibles.map((f, i) => (
-                  <option key={i} value={f}>{f}</option>
+                  <option key={i} value={f}>
+                    {f}
+                  </option>
                 ))}
               </select>
 
@@ -455,14 +523,17 @@ function Recepcion() {
                 <option value="">-- Selecciona un código --</option>
                 {fechaSeleccionada &&
                   cargasPorFecha[fechaSeleccionada]
-                    ?.filter(c => cargasSinNulos.some(cs => cs.codigoCarga === c.codigoCarga))
+                    ?.filter((c) =>
+                      cargasSinNulos.some(
+                        (cs) => cs.codigoCarga === c.codigoCarga
+                      )
+                    )
                     .sort((a, b) => a.codigoCarga.localeCompare(b.codigoCarga))
                     .map((c, i) => (
                       <option key={i} value={c.codigoCarga}>
                         {c.codigoCarga}
                       </option>
                     ))}
-
               </select>
 
               <div className="flex justify-center">
@@ -482,7 +553,8 @@ function Recepcion() {
           <ReporteRecepcionPDF
             codigoCarga={codigoParaReporte}
             fechaCarga={
-              cargas.find(c => c.codigoCarga === codigoParaReporte)?.fechaCarga || ''
+              cargas.find((c) => c.codigoCarga === codigoParaReporte)
+                ?.fechaCarga || ""
             }
             idCarga={idCargaReporte}
             faltantesPorLocal={faltantesPorLocal}
@@ -504,7 +576,9 @@ function Recepcion() {
               &times;
             </button>
 
-            <h2 className="text-lg font-bold mb-6 text-green-400 text-center">¿Deseas completar esta carga?</h2>
+            <h2 className="text-lg font-bold mb-6 text-green-400 text-center">
+              ¿Deseas completar esta carga?
+            </h2>
             <div className="flex justify-center gap-4">
               <button
                 className="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded font-bold"
@@ -536,8 +610,13 @@ function Recepcion() {
               &times;
             </button>
 
-            <h2 className="text-lg font-bold mb-6 text-red-400 text-center">¿Deseas terminar esta carga?</h2>
-            <p className="text-sm text-center mb-4">Los bultos sin estado serán marcados como <strong>FALTANTE</strong>.</p>
+            <h2 className="text-lg font-bold mb-6 text-red-400 text-center">
+              ¿Deseas terminar esta carga?
+            </h2>
+            <p className="text-sm text-center mb-4">
+              Los bultos sin estado serán marcados como{" "}
+              <strong>FALTANTE</strong>.
+            </p>
             <div className="flex justify-center gap-4">
               <button
                 className="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded font-bold"

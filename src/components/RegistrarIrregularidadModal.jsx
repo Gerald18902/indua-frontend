@@ -28,6 +28,17 @@ function RegistrarIrregularidadModal({ isOpen, onClose, onRegistroExitoso }) {
     }
   }, [foto]);
 
+  // 👉 Asignar automáticamente estadoMerma según tipoMerma
+  useEffect(() => {
+    if (form.tipoMerma === "FALTANTE") {
+      setForm((prev) => ({ ...prev, estadoMerma: "FALTANTE" }));
+    } else if (form.tipoMerma === "DETERIORADO" || form.tipoMerma === "DISCREPANCIA") {
+      setForm((prev) => ({ ...prev, estadoMerma: "MERMA SIN SUSTENTO" }));
+    } else {
+      setForm((prev) => ({ ...prev, estadoMerma: "SIN ESTADO" }));
+    }
+  }, [form.tipoMerma]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -58,7 +69,7 @@ function RegistrarIrregularidadModal({ isOpen, onClose, onRegistroExitoso }) {
 
     const data = new FormData();
     Object.entries(form).forEach(([key, value]) => {
-      if (key !== "estadoMerma") data.append(key, value);
+      data.append(key, value); // ✅ Incluye estadoMerma ahora
     });
 
     if (foto) data.append("fotoRegistro", foto);

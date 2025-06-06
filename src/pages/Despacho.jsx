@@ -5,6 +5,7 @@ import Layout from "../components/Layout";
 import BotonVolver from "../components/BotonVolver";
 import RegistrarEntregaModal from "../components/RegistrarEntregaModal";
 import RegistrarIrregularidadModal from "../components/RegistrarIrregularidadModal";
+import GenerarReporteModal from "../components/GenerarReporteModal";
 import { toast } from "react-toastify";
 
 function Despacho() {
@@ -16,6 +17,7 @@ function Despacho() {
   const [cargasPorFecha, setCargasPorFecha] = useState({});
   const [modalEntregaOpen, setModalEntregaOpen] = useState(false);
   const [modalIrregularidadOpen, setModalIrregularidadOpen] = useState(false);
+  const [modalReporteOpen, setModalReporteOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -120,7 +122,7 @@ function Despacho() {
   return (
     <Layout>
       <div className="relative w-full max-w-5xl mx-auto mt-4 flex items-center justify-start">
-        <BotonVolver ruta="/dashboard"/>
+        <BotonVolver ruta="/dashboard" />
         <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-black dark:text-white text-center">
           Módulo de Despacho
         </h1>
@@ -215,7 +217,10 @@ function Despacho() {
         >
           Gestión de Actas
         </button>
-        <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition">
+        <button
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition"
+          onClick={() => setModalReporteOpen(true)}
+        >
           Generar Reporte
         </button>
       </div>
@@ -236,6 +241,19 @@ function Despacho() {
         onRegistroExitoso={(codigo, tipoMerma) => {
           setModalIrregularidadOpen(false);
           actualizarBultoMerma(codigo, tipoMerma);
+        }}
+      />
+
+      <GenerarReporteModal
+        isOpen={modalReporteOpen}
+        onClose={() => setModalReporteOpen(false)}
+        fechasDisponibles={fechasDisponibles}
+        cargasPorFecha={cargasPorFecha}
+        onGenerarReporte={(fecha, codigoCarga) => {
+          window.open(
+            `http://localhost:8080/api/cargas/reporte-despacho/${codigoCarga}`,
+            "_blank"
+          );
         }}
       />
     </Layout>
