@@ -88,12 +88,7 @@ const AsignarFechaTransporteModal = ({
         <div className="flex justify-center">
           <button
             onClick={handleAsignar}
-            disabled={!localSeleccionado || !fechaSeleccionada || !codigoCarga}
-            className={`px-6 py-2 rounded font-bold text-white ${
-              !localSeleccionado || !fechaSeleccionada || !codigoCarga
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-500 hover:bg-blue-600"
-            }`}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded font-bold"
           >
             Asignar
           </button>
