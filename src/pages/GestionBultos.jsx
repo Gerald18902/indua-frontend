@@ -3,6 +3,7 @@ import axios from "axios";
 import Layout from "../components/Layout";
 import BotonVolver from "../components/BotonVolver";
 import AsignarFechaTransporteModal from "../components/AsignarFechaTransporteModal";
+import { API_BASE_URL } from "../config/api";
 
 const GestionBultos = () => {
   const [bultos, setBultos] = useState([]);
@@ -24,9 +25,7 @@ const GestionBultos = () => {
 
   const cargarBultos = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:8080/api/bultos/trazabilidad"
-      );
+      const res = await axios.get(`${API_BASE_URL}/bultos/trazabilidad`);
       setBultos(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Error al cargar bultos:", err);
@@ -36,7 +35,7 @@ const GestionBultos = () => {
 
   const cargarCargas = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/cargas");
+      const res = await axios.get(`${API_BASE_URL}/cargas`);
       const data = Array.isArray(res.data) ? res.data : [];
       setCargas(data);
 
@@ -92,7 +91,8 @@ const GestionBultos = () => {
 
   const formatFecha = (str) => {
     if (!str || str === "-") return "-";
-    return new Date(str).toLocaleDateString("es-PE");
+    const [year, month, day] = str.split("-");
+    return new Date(year, month - 1, day).toLocaleDateString("es-PE");
   };
 
   return (
@@ -214,8 +214,13 @@ const GestionBultos = () => {
 
         {localesEnAlmacen.length > 0 && (
           <button
-            className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded"
             onClick={() => setModalAbierto(true)}
+            disabled={!filtroFecha || !filtroCodigoCarga}
+            className={`mt-6 px-6 py-2 rounded font-bold text-white transition ${
+              !filtroFecha || !filtroCodigoCarga
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
           >
             Asignar Fecha de Transporte
           </button>

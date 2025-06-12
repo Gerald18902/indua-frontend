@@ -1,29 +1,30 @@
-import { useEffect, useState, useCallback } from 'react'
-import axios from 'axios'
-import Layout from '../components/Layout'
-import BotonVolver from '../components/BotonVolver'
-import AsignarRutaModal from '../components/AsignarRutaModal'
-import VerLocalesModal from '../components/VerLocalesModal'
-import ReporteTransportePDF from '../components/ReporteTransportePDF';
-import VerMapaModal from '../components/VerMapaModal';
+import { useEffect, useState, useCallback } from "react";
+import axios from "axios";
+import Layout from "../components/Layout";
+import BotonVolver from "../components/BotonVolver";
+import AsignarRutaModal from "../components/AsignarRutaModal";
+import VerLocalesModal from "../components/VerLocalesModal";
+import ReporteTransportePDF from "../components/ReporteTransportePDF";
+import VerMapaModal from "../components/VerMapaModal";
+import { API_BASE_URL } from "../config/api";
 
-import { toast } from 'react-toastify';
-import { ListOrdered, Map } from 'lucide-react';
+import { toast } from "react-toastify";
+import { ListOrdered, Map } from "lucide-react";
 
 const Transporte = () => {
-  const [rutas, setRutas] = useState([])
-  const [filtroFecha, setFiltroFecha] = useState('')
-  const [filtroCodigoCarga, setFiltroCodigoCarga] = useState('')
-  const [fechasDisponibles, setFechasDisponibles] = useState([])
-  const [cargasPorFecha, setCargasPorFecha] = useState({})
+  const [rutas, setRutas] = useState([]);
+  const [filtroFecha, setFiltroFecha] = useState("");
+  const [filtroCodigoCarga, setFiltroCodigoCarga] = useState("");
+  const [fechasDisponibles, setFechasDisponibles] = useState([]);
+  const [cargasPorFecha, setCargasPorFecha] = useState({});
 
-  const [modalAsignarOpen, setModalAsignarOpen] = useState(false)
-  const [modalLocalesOpen, setModalLocalesOpen] = useState(false)
-  const [idRutaSeleccionada, setIdRutaSeleccionada] = useState(null)
+  const [modalAsignarOpen, setModalAsignarOpen] = useState(false);
+  const [modalLocalesOpen, setModalLocalesOpen] = useState(false);
+  const [idRutaSeleccionada, setIdRutaSeleccionada] = useState(null);
 
   const [modalGenerarReporteOpen, setModalGenerarReporteOpen] = useState(false);
-  const [fechaSeleccionada, setFechaSeleccionada] = useState('');
-  const [codigoSeleccionado, setCodigoSeleccionado] = useState('');
+  const [fechaSeleccionada, setFechaSeleccionada] = useState("");
+  const [codigoSeleccionado, setCodigoSeleccionado] = useState("");
   const [mostrarReporte, setMostrarReporte] = useState(false);
   const [datosReporte, setDatosReporte] = useState(null);
   const [cargasConRuta, setCargasConRuta] = useState([]);
@@ -36,72 +37,82 @@ const Transporte = () => {
     if (filtroFecha) params.fecha = filtroFecha;
     if (filtroCodigoCarga) params.codigoCarga = filtroCodigoCarga;
 
-    axios.get('http://localhost:8080/api/rutas', { params })
-      .then(res => setRutas(res.data || []))
-      .catch(err => {
-        console.error('Error al cargar rutas:', err);
+    axios
+      .get(`${API_BASE_URL}/rutas`, { params })
+      .then((res) => setRutas(Array.isArray(res.data) ? res.data : []))
+      .catch((err) => {
+        console.error("Error al cargar rutas:", err);
         setRutas([]);
       });
   }, [filtroFecha, filtroCodigoCarga]);
 
   const cargarCargas = () => {
-    axios.get('http://localhost:8080/api/cargas')
-      .then(res => {
-        const data = res.data || []
-        const agrupadas = {}
-        data.forEach(c => {
-          if (!agrupadas[c.fechaCarga]) agrupadas[c.fechaCarga] = []
-          agrupadas[c.fechaCarga].push(c)
-        })
-        setCargasPorFecha(agrupadas)
+    axios
+      .get(`${API_BASE_URL}/cargas`)
+      .then((res) => {
+        const data = Array.isArray(res.data) ? res.data : [];
+        const agrupadas = {};
+        data.forEach((c) => {
+          const fecha = c.fechaCarga?.split("T")[0]; // ⬅️ Asegúrate de limpiar la hora
+          if (!agrupadas[fecha]) agrupadas[fecha] = [];
+          agrupadas[fecha].push(c);
+        });
+        setCargasPorFecha(agrupadas);
         setFechasDisponibles(
           Object.keys(agrupadas).sort((a, b) => new Date(b) - new Date(a))
-        )
+        );
       })
-      .catch(err => {
-        console.error('Error al cargar cargas:', err)
-        setCargasPorFecha({})
-        setFechasDisponibles([])
-      })
-  }
+      .catch((err) => {
+        console.error("Error al cargar cargas:", err);
+        setCargasPorFecha({});
+        setFechasDisponibles([]);
+      });
+  };
 
   const cargarCargasConRuta = () => {
-    axios.get('http://localhost:8080/api/rutas/cargas-con-ruta')
-      .then(res => {
+    axios
+      .get(`${API_BASE_URL}/rutas/cargas-con-ruta`)
+      .then((res) => {
         const data = res.data || [];
         const agrupadas = {};
-        data.forEach(c => {
+        data.forEach((c) => {
           if (!agrupadas[c.fechaCarga]) agrupadas[c.fechaCarga] = [];
           agrupadas[c.fechaCarga].push(c);
         });
         setCargasPorFecha(agrupadas);
-        setFechasDisponibles(Object.keys(agrupadas).sort((a, b) => new Date(b) - new Date(a)));
+        setFechasDisponibles(
+          Object.keys(agrupadas).sort((a, b) => new Date(b) - new Date(a))
+        );
         setCargasConRuta(data);
       })
-      .catch(err => {
-        console.error('Error al cargar cargas con ruta:', err);
+      .catch((err) => {
+        console.error("Error al cargar cargas con ruta:", err);
         setCargasConRuta([]);
       });
   };
 
   const handleGenerarReporteTransporte = async () => {
     try {
-      const carga = cargasPorFecha[fechaSeleccionada]?.find(c => c.codigoCarga === codigoSeleccionado);
-      if (!carga) return alert('Carga no encontrada');
+      const carga = cargasPorFecha[fechaSeleccionada]?.find(
+        (c) => c.codigoCarga === codigoSeleccionado
+      );
+      if (!carga) return alert("Carga no encontrada");
 
-      const res = await axios.get(`http://localhost:8080/api/rutas/reporte-transporte/${carga.idCarga}`);
+      const res = await axios.get(
+        `${API_BASE_URL}/rutas/reporte-transporte/${carga.idCarga}`
+      );
       setDatosReporte(res.data);
       setMostrarReporte(true);
       setModalGenerarReporteOpen(false);
     } catch (err) {
-      toast.error('Error al generar el reporte');
+      toast.error("Error al generar el reporte");
       console.error(err);
     }
   };
 
   useEffect(() => {
-    cargarCargas()
-  }, [])
+    cargarCargas();
+  }, []);
 
   useEffect(() => {
     if (modalGenerarReporteOpen) {
@@ -110,12 +121,12 @@ const Transporte = () => {
   }, [modalGenerarReporteOpen]);
 
   useEffect(() => {
-    cargarRutas()
-  }, [cargarRutas])
+    cargarRutas();
+  }, [cargarRutas]);
   return (
     <Layout>
       <div className="relative w-full max-w-5xl mx-auto mt-4 flex items-center justify-start">
-        <BotonVolver ruta="/dashboard"/>
+        <BotonVolver ruta="/dashboard" />
         <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-black dark:text-white text-center">
           Módulo de Transporte
         </h1>
@@ -124,34 +135,43 @@ const Transporte = () => {
       <div className="flex flex-col items-center justify-start p-6 text-black dark:text-white transition-colors">
         <div className="flex flex-wrap gap-4 mb-6">
           <div>
-            <label className="block text-sm mb-1 text-black dark:text-white">Filtrar por fecha:</label>
-            <select className="bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 rounded transition-colors"
-
+            <label className="block text-sm mb-1 text-black dark:text-white">
+              Filtrar por fecha:
+            </label>
+            <select
+              className="bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 rounded transition-colors"
               value={filtroFecha}
-              onChange={e => {
-                setFiltroFecha(e.target.value)
-                setFiltroCodigoCarga('')
+              onChange={(e) => {
+                setFiltroFecha(e.target.value);
+                setFiltroCodigoCarga("");
               }}
             >
               <option value="">Todas</option>
               {fechasDisponibles.map((fecha, i) => (
-                <option key={i} value={fecha}>{fecha}</option>
+                <option key={i} value={fecha}>
+                  {fecha}
+                </option>
               ))}
             </select>
           </div>
 
           {filtroFecha && (
             <div>
-              <label className="block text-sm mb-1 text-black dark:text-white">Filtrar por código de carga:</label>
-              <select className="bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 rounded transition-colors"
+              <label className="block text-sm mb-1 text-black dark:text-white">
+                Filtrar por código de carga:
+              </label>
+              <select
+                className="bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 rounded transition-colors"
                 value={filtroCodigoCarga}
-                onChange={e => setFiltroCodigoCarga(e.target.value)}
+                onChange={(e) => setFiltroCodigoCarga(e.target.value)}
               >
                 <option value="">Todos</option>
                 {cargasPorFecha[filtroFecha]
                   ?.sort((a, b) => a.codigoCarga.localeCompare(b.codigoCarga))
                   .map((c, i) => (
-                    <option key={i} value={c.codigoCarga}>{c.codigoCarga}</option>
+                    <option key={i} value={c.codigoCarga}>
+                      {c.codigoCarga}
+                    </option>
                   ))}
               </select>
             </div>
@@ -174,7 +194,7 @@ const Transporte = () => {
                   <tr key={i} className="text-center border-t">
                     <td className="px-4 py-2">{ruta.codigoCarga}</td>
                     <td className="px-4 py-2">{ruta.placaUnidad}</td>
-                    <td className="px-4 py-2">{ruta.comentario || '-'}</td>
+                    <td className="px-4 py-2">{ruta.comentario || "-"}</td>
                     <td className="px-4 py-2">
                       <button
                         className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded"
@@ -217,7 +237,7 @@ const Transporte = () => {
           onClose={() => setModalAsignarOpen(false)}
           onRutaAsignada={() => {
             cargarRutas();
-            toast.success('Ruta asignada correctamente ✅');
+            toast.success("Ruta asignada correctamente ✅");
           }}
         />
 
@@ -233,14 +253,13 @@ const Transporte = () => {
             className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition"
             onClick={() => {
               setModalGenerarReporteOpen(true);
-              setFechaSeleccionada('');
-              setCodigoSeleccionado('');
+              setFechaSeleccionada("");
+              setCodigoSeleccionado("");
             }}
           >
             Generar Reporte
           </button>
         </div>
-
       </div>
 
       <VerLocalesModal
@@ -260,25 +279,33 @@ const Transporte = () => {
             </button>
 
             <div className="flex flex-col items-center mb-6">
-              <h2 className="text-xl font-bold text-green-400">Selecciona Carga</h2>
+              <h2 className="text-xl font-bold text-green-400">
+                Selecciona Carga
+              </h2>
             </div>
 
-            <label className="block text-sm mb-1 text-black dark:text-white">Fecha de carga:</label>
+            <label className="block text-sm mb-1 text-black dark:text-white">
+              Fecha de carga:
+            </label>
             <select
               className="w-full bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 mb-4 rounded transition-colors"
               value={fechaSeleccionada}
               onChange={(e) => {
                 setFechaSeleccionada(e.target.value);
-                setCodigoSeleccionado('');
+                setCodigoSeleccionado("");
               }}
             >
               <option value="">-- Selecciona una fecha --</option>
               {fechasDisponibles.map((f, i) => (
-                <option key={i} value={f}>{f}</option>
+                <option key={i} value={f}>
+                  {f}
+                </option>
               ))}
             </select>
 
-            <label className="block text-sm mb-1 text-black dark:text-white">Código de carga:</label>
+            <label className="block text-sm mb-1 text-black dark:text-white">
+              Código de carga:
+            </label>
             <select
               className="w-full bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 mb-6 rounded transition-colors"
               value={codigoSeleccionado}
@@ -288,10 +315,12 @@ const Transporte = () => {
               <option value="">-- Selecciona un código --</option>
               {fechaSeleccionada &&
                 cargasConRuta
-                  .filter(c => c.fechaCarga === fechaSeleccionada)
+                  .filter((c) => c.fechaCarga?.startsWith(fechaSeleccionada))
                   .sort((a, b) => a.codigoCarga.localeCompare(b.codigoCarga))
                   .map((c, i) => (
-                    <option key={i} value={c.codigoCarga}>{c.codigoCarga}</option>
+                    <option key={i} value={c.codigoCarga}>
+                      {c.codigoCarga}
+                    </option>
                   ))}
             </select>
 
@@ -304,7 +333,6 @@ const Transporte = () => {
                 Generar
               </button>
             </div>
-
           </div>
         </div>
       )}
@@ -315,9 +343,8 @@ const Transporte = () => {
           onRenderComplete={() => setMostrarReporte(false)}
         />
       )}
-
     </Layout>
-  )
-}
+  );
+};
 
-export default Transporte
+export default Transporte;

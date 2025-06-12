@@ -7,6 +7,7 @@ import RegistrarEntregaModal from "../components/RegistrarEntregaModal";
 import RegistrarIrregularidadModal from "../components/RegistrarIrregularidadModal";
 import GenerarReporteModal from "../components/GenerarReporteModal";
 import { toast } from "react-toastify";
+import { API_BASE_URL } from "../config/api";
 
 function Despacho() {
   const [bultos, setBultos] = useState([]);
@@ -28,7 +29,7 @@ function Despacho() {
 
   const cargarBultos = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/bultos/en-camino");
+      const res = await axios.get(`${API_BASE_URL}/bultos/en-camino`);
       const data = Array.isArray(res.data) ? res.data : [];
       setBultos(data);
     } catch (err) {
@@ -39,7 +40,7 @@ function Despacho() {
 
   const cargarCargas = () => {
     axios
-      .get("http://localhost:8080/api/cargas")
+      .get(`${API_BASE_URL}/cargas`)
       .then((res) => {
         const data = res.data;
         setCargas(data);
@@ -83,7 +84,7 @@ function Despacho() {
       }
 
       await axios.put(
-        "http://localhost:8080/api/bultos/actualizar-despacho-masivo",
+        `${API_BASE_URL}/bultos/actualizar-despacho-masivo`,
         {
           codigosBulto: codigos,
           nuevoEstado: "ENTREGADO_EN_BUEN_ESTADO",
@@ -251,7 +252,7 @@ function Despacho() {
         cargasPorFecha={cargasPorFecha}
         onGenerarReporte={(fecha, codigoCarga) => {
           window.open(
-            `http://localhost:8080/api/cargas/reporte-despacho/${codigoCarga}`,
+            `${API_BASE_URL}/cargas/reporte-despacho/${codigoCarga}`,
             "_blank"
           );
         }}

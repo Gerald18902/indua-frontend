@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { API_BASE_URL } from "../config/api";
 
 const AsignarFechaTransporteModal = ({
   isOpen,
@@ -20,15 +21,22 @@ const AsignarFechaTransporteModal = ({
       return;
     }
 
+    console.log("📤 Enviando datos:", {
+      nombreLocal: localSeleccionado,
+      codigoCarga,
+      fechaTransporte: fechaSeleccionada,
+    });
+
     try {
       await axios.put(
-        "http://localhost:8080/api/bultos/asignar-fecha-transporte",
+        `${API_BASE_URL}/bultos/asignar-fecha-transporte`, // ✅ Con backticks
         {
           nombreLocal: localSeleccionado,
           codigoCarga,
-          fechaTransporte: fechaSeleccionada, // ✅ directamente sin parseo
+          fechaTransporte: fechaSeleccionada,
         }
       );
+
       toast.success("Fecha de transporte asignada correctamente");
       onAsignado();
       onClose();
@@ -80,7 +88,12 @@ const AsignarFechaTransporteModal = ({
         <div className="flex justify-center">
           <button
             onClick={handleAsignar}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded font-bold"
+            disabled={!localSeleccionado || !fechaSeleccionada || !codigoCarga}
+            className={`px-6 py-2 rounded font-bold text-white ${
+              !localSeleccionado || !fechaSeleccionada || !codigoCarga
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-blue-600"
+            }`}
           >
             Asignar
           </button>

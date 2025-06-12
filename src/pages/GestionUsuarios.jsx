@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import Layout from '../components/Layout'
 import BotonVolver from '../components/BotonVolver'
 import FormularioUsuario from '../components/FormularioUsuario'
+import { API_BASE_URL } from "../config/api";
 
 import { toast } from 'react-toastify'
 
@@ -12,7 +13,7 @@ const GestionUsuarios = () => {
   const [usuarioEditar, setUsuarioEditar] = useState(null)
 
   const cargarUsuarios = () => {
-    fetch('http://localhost:8080/api/usuarios')
+    fetch(`${API_BASE_URL}/usuarios`)
       .then(res => res.json())
       .then(data => setUsuarios(data))
       .catch(err => console.error('Error al cargar usuarios:', err))
@@ -20,6 +21,7 @@ const GestionUsuarios = () => {
 
   useEffect(() => {
     cargarUsuarios()
+    console.log("API BASE URL:", API_BASE_URL);
   }, [])
 
   const abrirModalCrear = () => {
@@ -40,8 +42,8 @@ const GestionUsuarios = () => {
   const guardarUsuario = (data) => {
     const metodo = usuarioEditar ? 'PUT' : 'POST'
     const url = usuarioEditar
-      ? `http://localhost:8080/api/usuarios/${usuarioEditar.id_usuario}`
-      : 'http://localhost:8080/api/auth/register'
+      ? `${API_BASE_URL}/usuarios/${usuarioEditar.id_usuario}`
+      : `${API_BASE_URL}/auth/register`
 
     fetch(url, {
       method: metodo,

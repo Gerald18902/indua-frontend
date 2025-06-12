@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import Layout from "../components/Layout";
 import BotonVolver from "../components/BotonVolver";
+import { API_BASE_URL } from "../config/api";
 
 import ReporteRecepcionPDF from "../components/ReporteRecepcionPDF";
 
@@ -37,6 +38,7 @@ function Recepcion() {
 
     // 👇 Útil para depurar errores de ID o fechas
     console.log("✅ useEffect inicial: Se cargaron bultos y cargas");
+    console.log("API BASE URL:", API_BASE_URL);
   }, []);
 
   useEffect(() => {
@@ -51,10 +53,10 @@ function Recepcion() {
 
   const cargarBultos = () => {
     axios
-      .get("http://localhost:8080/api/bultos")
+      .get(`${API_BASE_URL}/bultos`) // ← corregido
       .then((response) => {
         const data = Array.isArray(response.data) ? response.data : [];
-
+        console.log("📦 Bultos recibidos:", data); // ← ayuda a depurar
         setBultos(data);
       })
       .catch((error) => {
@@ -105,8 +107,9 @@ function Recepcion() {
 
   const bultosFiltrados = bultos.filter((b) => {
     if (!filtroFecha) return true;
+
     const carga = cargas.find((c) => c.codigoCarga === b.codigoCarga);
-    if (!carga || carga.fechaCarga !== filtroFecha) return false;
+    if (!carga || !carga.fechaCarga.startsWith(filtroFecha)) return false; // ← corregido
 
     if (filtroCodigoCarga && b.codigoCarga !== filtroCodigoCarga) return false;
 
@@ -118,7 +121,7 @@ function Recepcion() {
 
   const cargarCargas = () => {
     axios
-      .get("http://localhost:8080/api/cargas")
+      .get(`${API_BASE_URL}/cargas`)
       .then((response) => {
         const data = response.data;
         setCargas(Array.isArray(data) ? data : []);
@@ -174,7 +177,7 @@ function Recepcion() {
       }
 
       const reporteRes = await axios.get(
-        `http://localhost:8080/api/cargas/reporte-recepcion/${carga.idCarga}`
+        `${API_BASE_URL}/cargas/reporte-recepcion/${carga.idCarga}`
       );
       const reporte = reporteRes.data;
 
@@ -195,7 +198,7 @@ function Recepcion() {
     if (!filtroCodigoCarga) return;
 
     try {
-      await axios.put("http://localhost:8080/api/bultos/completar-carga", {
+      await axios.put(`${API_BASE_URL}/bultos/completar-carga`, {
         codigoCarga: filtroCodigoCarga,
       });
 
@@ -209,7 +212,7 @@ function Recepcion() {
 
   const handleTerminarCarga = async () => {
     try {
-      await axios.put("http://localhost:8080/api/bultos/terminar-carga", {
+      await axios.put(`${API_BASE_URL}/bultos/terminar-carga`, {
         codigoCarga: filtroCodigoCarga,
       });
 
@@ -313,7 +316,7 @@ function Recepcion() {
 
                     try {
                       await axios.put(
-                        `http://localhost:8080/api/bultos/actualizar-estado`,
+                        `${API_BASE_URL}/bultos/actualizar-estado`,
                         {
                           codigoBulto: codigo,
                           nuevoEstado: "EN_BUEN_ESTADO",
@@ -402,7 +405,7 @@ function Recepcion() {
 
                               try {
                                 await axios.put(
-                                  `http://localhost:8080/api/bultos/actualizar-estado`,
+                                  `${API_BASE_URL}/bultos/actualizar-estado`,
                                   {
                                     codigoBulto: b.codigoBulto,
                                     nuevoEstado,

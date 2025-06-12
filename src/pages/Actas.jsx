@@ -4,6 +4,7 @@ import Layout from "../components/Layout";
 import BotonVolver from "../components/BotonVolver";
 import { toast } from "react-toastify";
 import ImagenModal from "../components/ImagenModal";
+import { API_BASE_URL, STATIC_BASE_URL } from "../config/api";
 
 export default function Actas() {
   const [actas, setActas] = useState([]);
@@ -27,7 +28,7 @@ export default function Actas() {
       params.append("fechaIncidencia", filtros.fechaIncidencia);
 
     axios
-      .get(`http://localhost:8080/api/actas?${params.toString()}`)
+      .get(`${API_BASE_URL}/actas?${params.toString()}`)
       .then((res) => setActas(res.data))
       .catch((err) => {
         console.error(err);
@@ -57,7 +58,7 @@ export default function Actas() {
 
     try {
       await axios.post(
-        `http://localhost:8080/api/actas/${actualizando.idActa}/actualizar`,
+        `${API_BASE_URL}/actas/${actualizando.idActa}/actualizar`,
         formData
       );
       toast.success("Acta actualizada");
@@ -160,11 +161,11 @@ export default function Actas() {
                   <td className="px-4 py-2">
                     {a.fotoRegistro && (
                       <img
-                        src={`http://localhost:8080/uploads/${a.fotoRegistro}`}
+                        src={`${STATIC_BASE_URL}/uploads/${a.fotoRegistro}`}
                         alt="registro"
                         onClick={() =>
                           setImagenAmpliada(
-                            `http://localhost:8080/uploads/${a.fotoRegistro}`
+                            `${STATIC_BASE_URL}/uploads/${a.fotoRegistro}`
                           )
                         }
                         onError={(e) => {
@@ -178,11 +179,11 @@ export default function Actas() {
                   <td className="px-4 py-2">
                     {a.fotoRegularizacion && (
                       <img
-                        src={`http://localhost:8080/uploads/${a.fotoRegularizacion}`}
+                        src={`${STATIC_BASE_URL}/uploads/${a.fotoRegularizacion}`}
                         alt="regularizacion"
                         onClick={() =>
                           setImagenAmpliada(
-                            `http://localhost:8080/uploads/${a.fotoRegularizacion}`
+                            `${STATIC_BASE_URL}/uploads/${a.fotoRegularizacion}`
                           )
                         }
                         onError={(e) => {

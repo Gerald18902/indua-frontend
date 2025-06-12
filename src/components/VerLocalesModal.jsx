@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import { API_BASE_URL } from "../config/api";
 
 const VerLocalesModal = ({ isOpen, onClose, idRuta }) => {
   const [locales, setLocales] = useState([])
 
   useEffect(() => {
     if (isOpen && idRuta) {
-      axios.get(`http://localhost:8080/api/rutas/locales-de-ruta/${idRuta}`)
+      axios.get(`${API_BASE_URL}/rutas/locales-de-ruta/${idRuta}`)
         .then(res => {
           setLocales(res.data || []);
         })

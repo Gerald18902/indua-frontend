@@ -3,6 +3,7 @@ import axios from 'axios'
 import Layout from '../components/Layout'
 import CargaModal from '../components/CargaModal'
 import BotonVolver from '../components/BotonVolver'
+import { API_BASE_URL } from "../config/api";
 
 function RegistroCarga() {
   const [cargas, setCargas] = useState([])
@@ -10,10 +11,11 @@ function RegistroCarga() {
 
   useEffect(() => {
     cargarCargas()
+    console.log("API BASE URL:", API_BASE_URL);
   }, [])
 
   const cargarCargas = () => {
-    axios.get('http://localhost:8080/api/cargas')
+    axios.get(`${API_BASE_URL}/cargas`)
       .then(response => {
         let data = Array.isArray(response.data) ? response.data : [];
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { FaCamera } from "react-icons/fa";
+import { API_BASE_URL } from "../config/api";
 
 function RegistrarIrregularidadModal({ isOpen, onClose, onRegistroExitoso }) {
   const [form, setForm] = useState({
@@ -75,7 +76,7 @@ function RegistrarIrregularidadModal({ isOpen, onClose, onRegistroExitoso }) {
     if (foto) data.append("fotoRegistro", foto);
 
     try {
-      const res = await fetch("http://localhost:8080/api/actas", {
+      const res = await fetch(`${API_BASE_URL}/actas`, {
         method: "POST",
         body: data,
       });

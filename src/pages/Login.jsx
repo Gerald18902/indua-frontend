@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.png'
+import { API_BASE_URL } from "../config/api";
 
 
 const Login = () => {
@@ -16,8 +17,10 @@ const Login = () => {
     e.preventDefault()
     setError('') // Limpiar error anterior
 
+  console.log("API BASE URL:", API_BASE_URL);
+
     try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)

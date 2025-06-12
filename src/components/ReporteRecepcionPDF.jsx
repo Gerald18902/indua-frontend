@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import jsPDF from 'jspdf';
 import axios from 'axios';
 import logo from '../assets/logo.png';
+import { API_BASE_URL } from "../config/api";
 
 const ReporteRecepcionPDF = ({
   codigoCarga = '',
@@ -38,7 +39,7 @@ const ReporteRecepcionPDF = ({
       try {
         const [datosFrecuencia, logoBase64] = await Promise.all([
           
-          axios.get(`http://localhost:8080/api/cargas/reporte-frecuencia/${idCarga}`).then(res => res.data),
+          axios.get(`${API_BASE_URL}/cargas/reporte-frecuencia/${idCarga}`).then(res => res.data),
           convertImageToBase64(logo)
         ]);
 

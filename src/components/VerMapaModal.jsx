@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import L from 'leaflet';
+import { API_BASE_URL } from "../config/api";
 
 import 'leaflet/dist/leaflet.css';
 
@@ -17,7 +18,7 @@ const VerMapaModal = ({ idRuta, onClose }) => {
 
   useEffect(() => {
     if (idRuta) {
-      axios.get(`http://localhost:8080/api/rutas/mapa-ruta/${idRuta}`)
+      axios.get(`${API_BASE_URL}/rutas/mapa-ruta/${idRuta}`)
         .then(res => setRuta(res.data))
         .catch(err => {
           console.error('Error al cargar ruta:', err);
