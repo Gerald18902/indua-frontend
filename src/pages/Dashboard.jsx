@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
+import BotonVolver from "../components/BotonVolver";
 
 const PasoCard = ({ index, paso, onClick }) => (
   <div
@@ -87,14 +88,11 @@ const Dashboard = () => {
   return (
     <Layout>
       <div className="flex flex-col items-center justify-center">
-        <div className="w-full max-w-6xl mt-6 px-4 flex justify-start">
-          <button
-            onClick={() => navigate("/admin-home")}
-            className="bg-gray-300 dark:bg-gray-700 text-black dark:text-white font-semibold px-4 py-2 rounded shadow hover:bg-gray-400 dark:hover:bg-gray-600 transition"
-          >
-            ← Volver al Panel Principal
-          </button>
-        </div>
+        {rol === "administrador" && (
+          <div className="w-full max-w-6xl mt-6 px-4 flex justify-start">
+            <BotonVolver texto="Volver" ruta="/admin-home" />
+          </div>
+        )}
 
         <div className="flex flex-col items-center gap-12">
           {/* Pasos principales con flechas */}
