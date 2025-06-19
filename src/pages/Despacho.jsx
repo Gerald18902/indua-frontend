@@ -83,13 +83,10 @@ function Despacho() {
         return;
       }
 
-      await axios.put(
-        `${API_BASE_URL}/bultos/actualizar-despacho-masivo`,
-        {
-          codigosBulto: codigos,
-          nuevoEstado: "ENTREGADO_EN_BUEN_ESTADO",
-        }
-      );
+      await axios.put(`${API_BASE_URL}/bultos/actualizar-despacho-masivo`, {
+        codigosBulto: codigos,
+        nuevoEstado: "ENTREGADO_EN_BUEN_ESTADO",
+      });
 
       toast.success("Entrega registrada con éxito");
       setModalEntregaOpen(false);
@@ -207,11 +204,26 @@ function Despacho() {
 
       <div className="flex justify-center gap-4 mt-6">
         <button
-          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-          onClick={() => setModalEntregaOpen(true)}
+          className={`font-bold py-2 px-4 rounded transition ${
+            !filtroFecha || !filtroCodigoCarga
+              ? "bg-blue-300 text-white cursor-not-allowed"
+              : "bg-blue-500 hover:bg-blue-600 text-white"
+          }`}
+          onClick={() => {
+            if (filtroFecha && filtroCodigoCarga) {
+              setModalEntregaOpen(true);
+            }
+          }}
+          disabled={!filtroFecha || !filtroCodigoCarga}
+          title={
+            !filtroFecha || !filtroCodigoCarga
+              ? "Debe seleccionar una fecha y una carga para habilitar esta acción"
+              : ""
+          }
         >
           Registrar Entrega
         </button>
+
         <button
           className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded"
           onClick={() => navigate("/actas")}

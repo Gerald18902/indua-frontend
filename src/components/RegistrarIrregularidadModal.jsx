@@ -32,9 +32,20 @@ function RegistrarIrregularidadModal({ isOpen, onClose, onRegistroExitoso }) {
   // 👉 Asignar automáticamente estadoMerma según tipoMerma
   useEffect(() => {
     if (form.tipoMerma === "FALTANTE") {
-      setForm((prev) => ({ ...prev, estadoMerma: "FALTANTE" }));
-    } else if (form.tipoMerma === "DETERIORADO" || form.tipoMerma === "DISCREPANCIA") {
-      setForm((prev) => ({ ...prev, estadoMerma: "MERMA SIN SUSTENTO" }));
+      setForm((prev) => ({
+        ...prev,
+        estadoMerma: "FALTANTE",
+        cantidad: "1", // ✅ autoasigna cantidad
+      }));
+    } else if (
+      form.tipoMerma === "DETERIORADO" ||
+      form.tipoMerma === "DISCREPANCIA"
+    ) {
+      setForm((prev) => ({
+        ...prev,
+        estadoMerma: "MERMA SIN SUSTENTO",
+        cantidad: "", // permite editar manualmente
+      }));
     } else {
       setForm((prev) => ({ ...prev, estadoMerma: "SIN ESTADO" }));
     }
@@ -80,7 +91,20 @@ function RegistrarIrregularidadModal({ isOpen, onClose, onRegistroExitoso }) {
         method: "POST",
         body: data,
       });
-      if (!res.ok) throw new Error(await res.text());
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        try {
+          const errorJson = JSON.parse(errorText);
+          toast.error(
+            errorJson.message || "Error al registrar la irregularidad"
+          );
+        } catch {
+          toast.error(errorText || "Error al registrar la irregularidad");
+        }
+        return;
+      }
+
       toast.success("Irregularidad registrada con éxito");
       setForm({
         fechaIncidencia: "",
@@ -99,7 +123,7 @@ function RegistrarIrregularidadModal({ isOpen, onClose, onRegistroExitoso }) {
       onClose();
     } catch (err) {
       console.error(err);
-      toast.error("Error al registrar la irregularidad");
+      toast.error("Error inesperado al registrar la irregularidad");
     }
   };
 
@@ -145,32 +169,71 @@ function RegistrarIrregularidadModal({ isOpen, onClose, onRegistroExitoso }) {
               name="codigoBulto"
               placeholder="Código del bulto"
               value={form.codigoBulto}
-              onChange={handleChange}
+              onChange={(e) => {
+                const valor = e.target.value.toUpperCase();
+                // Solo letras y números, máx. 15
+                if (/^[A-Z0-9]*$/.test(valor) && valor.length <= 15) {
+                  setForm((prev) => ({ ...prev, codigoBulto: valor }));
+                }
+              }}
               className="px-4 py-2 rounded bg-gray-100 dark:bg-gray-800"
               required
             />
+
             <input
               name="numeroActa"
               placeholder="Número de acta"
+              type="number"
+              min={1}
+              max={100}
               value={form.numeroActa}
-              onChange={handleChange}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (
+                  value === "" ||
+                  (/^\d+$/.test(value) &&
+                    parseInt(value) >= 1 &&
+                    parseInt(value) <= 100)
+                ) {
+                  setForm((prev) => ({ ...prev, numeroActa: value }));
+                }
+              }}
+              onKeyDown={(e) => {
+                if (["e", "E", "+", "-", "."].includes(e.key)) {
+                  e.preventDefault();
+                }
+              }}
               className="px-4 py-2 rounded bg-gray-100 dark:bg-gray-800"
+              required
             />
+
             <input
               name="nombreAuxiliar"
               placeholder="Nombre del auxiliar"
               value={form.nombreAuxiliar}
-              onChange={handleChange}
+              onChange={(e) => {
+                const valor = e.target.value;
+                if (/^[a-zA-ZÁÉÍÓÚÑáéíóúñ\s]{0,25}$/.test(valor)) {
+                  setForm((prev) => ({ ...prev, nombreAuxiliar: valor }));
+                }
+              }}
               className="px-4 py-2 rounded bg-gray-100 dark:bg-gray-800"
             />
+
             <input
               name="nombre"
               placeholder="Nombre del bulto"
               value={form.nombre}
-              onChange={handleChange}
+              onChange={(e) => {
+                const valor = e.target.value;
+                if (/^[a-zA-ZÁÉÍÓÚÑáéíóúñ\s]{0,25}$/.test(valor)) {
+                  setForm((prev) => ({ ...prev, nombre: valor }));
+                }
+              }}
               className="px-4 py-2 rounded bg-gray-100 dark:bg-gray-800"
               required
             />
+
             <select
               name="tipoMerma"
               value={form.tipoMerma}
@@ -178,22 +241,47 @@ function RegistrarIrregularidadModal({ isOpen, onClose, onRegistroExitoso }) {
               className="px-4 py-2 rounded bg-gray-100 dark:bg-gray-800"
               required
             >
-              <option value="">TIPO DE MERMA</option>
+              <option value="" disabled hidden>
+                TIPO DE MERMA
+              </option>
               {tiposMerma.map((tipo, i) => (
                 <option key={i} value={tipo}>
                   {tipo}
                 </option>
               ))}
             </select>
+
             <input
               name="cantidad"
               placeholder="Cantidad"
               type="number"
-              value={form.cantidad}
-              onChange={handleChange}
-              className="px-4 py-2 rounded bg-gray-100 dark:bg-gray-800"
-              required
               min={1}
+              max={99}
+              value={form.cantidad}
+              onChange={(e) => {
+                if (form.tipoMerma === "FALTANTE") return; // ✅ bloqueo adicional por seguridad
+
+                const value = e.target.value;
+                if (
+                  value === "" ||
+                  (/^\d+$/.test(value) &&
+                    parseInt(value) >= 1 &&
+                    parseInt(value) <= 99)
+                ) {
+                  setForm((prev) => ({ ...prev, cantidad: value }));
+                }
+              }}
+              onKeyDown={(e) => {
+                if (["e", "E", "+", "-", "."].includes(e.key)) {
+                  e.preventDefault();
+                }
+              }}
+              disabled={form.tipoMerma === "FALTANTE"} // ✅ desactiva el campo visualmente
+              className={`px-4 py-2 rounded ${
+                form.tipoMerma === "FALTANTE"
+                  ? "bg-gray-300 dark:bg-gray-700"
+                  : "bg-gray-100 dark:bg-gray-800"
+              }`}
             />
           </div>
 

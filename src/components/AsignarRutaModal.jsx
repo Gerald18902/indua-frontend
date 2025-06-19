@@ -27,6 +27,7 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
   const [mostrarSubmodalVueltas, setMostrarSubmodalVueltas] = useState(false);
   const [vueltasTemporales, setVueltasTemporales] = useState(null); // almacena { primera, segunda }
   const [localesParaDividir, setLocalesParaDividir] = useState([]);
+  const [enviando, setEnviando] = useState(false);
 
   const tienePendientes = mensajePendientes !== "";
 
@@ -135,6 +136,8 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
   };
 
   const handleConfirmarRuta = (vueltasDirectas = null) => {
+    if (enviando) return;
+    setEnviando(true);
     const rutasPayload = [];
 
     const vueltas = vueltasDirectas || vueltasTemporales;
@@ -497,8 +500,9 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
               <button
                 className="bg-green-400 hover:bg-green-500 text-black font-bold py-2 px-6 rounded"
                 onClick={handleConfirmarRuta}
+                disabled={enviando}
               >
-                Confirmar Ruta
+                {enviando ? "Procesando..." : "Confirmar Ruta"}
               </button>
             </div>
           </>
