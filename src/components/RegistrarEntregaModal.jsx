@@ -1,8 +1,15 @@
 import { FaBoxOpen } from "react-icons/fa";
+import { useState } from "react";
+import { toast } from "react-toastify";
 
-function RegistrarEntregaModal({ isOpen, onClose, onCompletarEntrega, onAbrirIrregularidad }) {
+function RegistrarEntregaModal({
+  isOpen,
+  onClose,
+  onCompletarEntrega,
+  onAbrirIrregularidad,
+}) {
+  const [cargando, setCargando] = useState(false);
   if (!isOpen) return null;
-
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -35,10 +42,27 @@ function RegistrarEntregaModal({ isOpen, onClose, onCompletarEntrega, onAbrirIrr
           </button>
 
           <button
-            className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded"
-            onClick={onCompletarEntrega}
+            className={`font-bold py-2 px-6 rounded text-white ${
+              cargando
+                ? "bg-green-300 cursor-not-allowed"
+                : "bg-green-500 hover:bg-green-600"
+            }`}
+            onClick={async () => {
+              if (cargando) return;
+              setCargando(true);
+
+              try {
+                await onCompletarEntrega();
+              } catch (err) {
+                console.error("Error al completar la entrega", err);
+                toast.error("Ocurrió un error al completar la entrega");
+              } finally {
+                setCargando(false);
+              }
+            }}
+            disabled={cargando}
           >
-            Completar Entrega
+            {cargando ? "Procesando..." : "Completar Entrega"}
           </button>
         </div>
       </div>

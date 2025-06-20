@@ -218,24 +218,40 @@ export default function Actas() {
           <h3 className="text-lg font-bold mb-4 text-black dark:text-white">
             Editar Acta: {actualizando.codigoBulto}
           </h3>
+          <label className="text-sm font-semibold text-black dark:text-white mb-1">
+            Ingresa los nuevos datos:
+          </label>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
             <div className="flex flex-col gap-4">
-              <select
-                className="p-2 rounded border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-black dark:text-white"
-                value={actualizando.estadoMerma}
-                onChange={(e) =>
-                  setActualizando({
-                    ...actualizando,
-                    estadoMerma: e.target.value,
-                  })
-                }
-              >
-                <option value="MERMA SIN SUSTENTO">MERMA SIN SUSTENTO</option>
-                <option value="MERMA CON SUSTENTO">MERMA CON SUSTENTO</option>
-                <option value="PENDIENTE DE ENVÍO">PENDIENTE DE ENVÍO</option>
-                <option value="REGULARIZADO">REGULARIZADO</option>
-              </select>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-semibold text-black dark:text-white">
+                  Estado de Merma:
+                </label>
+                <select
+                  className="p-2 rounded border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-black dark:text-white"
+                  value={actualizando.estadoMerma}
+                  onChange={(e) =>
+                    setActualizando({
+                      ...actualizando,
+                      estadoMerma: e.target.value,
+                    })
+                  }
+                >
+                  <option disabled value="">
+                    -- Selecciona estado --
+                  </option>
+                  {[
+                    "MERMA CON SUSTENTO",
+                    "PENDIENTE DE ENVÍO",
+                    "REGULARIZADO",
+                  ].map((estado, i) => (
+                    <option key={i} value={estado}>
+                      {estado}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               <select
                 className="p-2 rounded border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-black dark:text-white"
@@ -247,12 +263,14 @@ export default function Actas() {
                   })
                 }
               >
-                <option value="">Responsabilidad</option>
-                <option value="ORIGEN">ORIGEN</option>
-                <option value="ATARAMA">ATARAMA</option>
-                <option value="ATN">ATN</option>
-                <option value="ISL">ISL</option>
-                <option value="TERCERO">TERCERO</option>
+                <option disabled value="">
+                  -- Selecciona responsabilidad --
+                </option>
+                {["ORIGEN", "ATARAMA", "ATN", "ISL", "TERCERO"].map((r, i) => (
+                  <option key={i} value={r}>
+                    {r}
+                  </option>
+                ))}
               </select>
 
               <label className="flex flex-col items-start cursor-pointer">
@@ -285,11 +303,17 @@ export default function Actas() {
 
           <div className="flex justify-center gap-6 mt-6">
             <button
-              className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded font-semibold border border-green-700"
               onClick={handleActualizar}
+              disabled={!foto}
+              className={`px-6 py-2 rounded font-semibold border ${
+                foto
+                  ? "bg-green-500 hover:bg-green-600 text-white border-green-700"
+                  : "bg-gray-300 text-gray-600 border-gray-400 cursor-not-allowed"
+              }`}
             >
               Guardar
             </button>
+
             <button
               className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded font-semibold border border-red-700"
               onClick={() => {

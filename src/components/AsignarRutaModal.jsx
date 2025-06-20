@@ -235,10 +235,12 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
                 });
             }
           });
+        setEnviando(false);
       })
       .catch((err) => {
         console.error("Error al asignar rutas:", err);
         toast.error("Error al asignar la(s) ruta(s)");
+        setEnviando(false);
       });
   };
 

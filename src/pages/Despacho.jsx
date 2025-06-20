@@ -117,6 +117,12 @@ function Despacho() {
     );
   };
 
+  const puedeGenerarReporte =
+    filtroFecha &&
+    filtroCodigoCarga &&
+    bultosFiltrados.length > 0 &&
+    bultosFiltrados.every((b) => b.estadoDespacho !== null);
+
   return (
     <Layout>
       <div className="relative w-full max-w-5xl mx-auto mt-4 flex items-center justify-start">
@@ -206,8 +212,8 @@ function Despacho() {
         <button
           className={`font-bold py-2 px-4 rounded transition ${
             !filtroFecha || !filtroCodigoCarga
-              ? "bg-blue-300 text-white cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-600 text-white"
+              ? "bg-green-200 text-white cursor-not-allowed"
+              : "bg-green-400 hover:bg-green-500 text-black"
           }`}
           onClick={() => {
             if (filtroFecha && filtroCodigoCarga) {
@@ -231,8 +237,20 @@ function Despacho() {
           Gestión de Actas
         </button>
         <button
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition"
-          onClick={() => setModalReporteOpen(true)}
+          className={`font-bold py-2 px-4 rounded transition ${
+            puedeGenerarReporte
+              ? "bg-blue-600 hover:bg-blue-700 text-white"
+              : "bg-blue-300 text-white cursor-not-allowed"
+          }`}
+          onClick={() => {
+            if (puedeGenerarReporte) setModalReporteOpen(true);
+          }}
+          disabled={!puedeGenerarReporte}
+          title={
+            !puedeGenerarReporte
+              ? "Debe aplicar ambos filtros y completar todas las entregas"
+              : ""
+          }
         >
           Generar Reporte
         </button>
