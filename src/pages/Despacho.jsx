@@ -109,9 +109,9 @@ function Despacho() {
       prevBultos.map((b) =>
         b.codigoBulto === codigo
           ? {
-              ...b,
-              estadoDespacho: tipoMerma?.toUpperCase(),
-            }
+            ...b,
+            estadoDespacho: tipoMerma?.toUpperCase(),
+          }
           : b
       )
     );
@@ -210,11 +210,10 @@ function Despacho() {
 
       <div className="flex justify-center gap-4 mt-6">
         <button
-          className={`font-bold py-2 px-4 rounded transition ${
-            !filtroFecha || !filtroCodigoCarga
-              ? "bg-green-200 text-white cursor-not-allowed"
+          className={`font-bold py-2 px-4 rounded transition ${!filtroFecha || !filtroCodigoCarga
+              ? "bg-gray-400 cursor-not-allowed"
               : "bg-green-400 hover:bg-green-500 text-black"
-          }`}
+            }`}
           onClick={() => {
             if (filtroFecha && filtroCodigoCarga) {
               setModalEntregaOpen(true);
@@ -237,11 +236,10 @@ function Despacho() {
           Gestión de Actas
         </button>
         <button
-          className={`font-bold py-2 px-4 rounded transition ${
-            puedeGenerarReporte
+          className={`font-bold py-2 px-4 rounded transition ${puedeGenerarReporte
               ? "bg-blue-600 hover:bg-blue-700 text-white"
               : "bg-blue-300 text-white cursor-not-allowed"
-          }`}
+            }`}
           onClick={() => {
             if (puedeGenerarReporte) setModalReporteOpen(true);
           }}

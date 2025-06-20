@@ -53,20 +53,25 @@ const GestionUsuarios = () => {
         estado: usuarioEditar ? data.estado : true // activo por defecto si es nuevo
       })
     })
-      .then((res) => {
-        if (!res.ok) throw new Error('Error en la operación')
-        toast.success(usuarioEditar ? 'Usuario actualizado' : 'Usuario creado')
-        cerrarModal()
-        cargarUsuarios()
+      .then(async (res) => {
+        if (!res.ok) {
+          const errorMsg = await res.text();
+          throw new Error(errorMsg);
+        }
+        toast.success(usuarioEditar ? 'Usuario actualizado' : 'Usuario creado');
+        cerrarModal();
+        cargarUsuarios();
       })
-      .catch(() => toast.error('Error al guardar usuario.'))
+      .catch((error) => {
+        toast.error(error.message || 'Error al guardar usuario.');
+      });
   }
 
   return (
     <Layout>
       {/* Encabezado */}
       <div className="relative w-full max-w-5xl mx-auto mt-4 flex items-center justify-start">
-        <BotonVolver ruta="/administracion"/>
+        <BotonVolver ruta="/administracion" />
         <h1 className="absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold text-black dark:text-white text-center">
           Gestión de Usuarios
         </h1>

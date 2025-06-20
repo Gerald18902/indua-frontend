@@ -46,14 +46,12 @@ function CargaModal({ isOpen, onClose, onCargaRegistrada }) {
     e.preventDefault();
 
     if (!file) {
-      toast.error("Debes subir un archivo", { position: "top-center" });
+      toast.error("Debes subir un archivo");
       return;
     }
 
     if (!file.name.endsWith(".xlsx")) {
-      toast.error("Debes seleccionar un archivo válido en formato .xlsx", {
-        position: "top-center",
-      });
+      toast.error("Debes seleccionar un archivo válido en formato .xlsx");
       return;
     }
 
@@ -81,18 +79,16 @@ function CargaModal({ isOpen, onClose, onCargaRegistrada }) {
       if (onCargaRegistrada) onCargaRegistrada(resultado.idCarga);
       resetForm();
       onClose();
-      toast.success("Carga registrada con éxito", { position: "top-center" });
+      toast.success("Carga registrada con éxito");
     } catch (error) {
       console.error("Error al registrar:", error);
-      toast.error(error.message, { position: "top-center" });
+      toast.error(error.message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   if (!isOpen) return null;
-
-  // ...imports
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -170,12 +166,12 @@ function CargaModal({ isOpen, onClose, onCargaRegistrada }) {
           <div className="flex justify-center mt-4">
             <button
               type="submit"
-              className="bg-green-400 text-black font-bold py-2 px-6 rounded hover:bg-green-500"
+              className="bg-green-400 text-black font-bold py-2 px-6 rounded hover:bg-green-500 flex items-center justify-center gap-2"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
                 <svg
-                  className="animate-spin h-5 w-5 mr-2 text-black"
+                  className="animate-spin h-5 w-5 text-black"
                   viewBox="0 0 24 24"
                 >
                   <circle
@@ -193,8 +189,7 @@ function CargaModal({ isOpen, onClose, onCargaRegistrada }) {
                     d="M4 12a8 8 0 018-8v8H4z"
                   />
                 </svg>
-              ) : null}
-              {isSubmitting ? "Registrando..." : "Registrar"}
+              ) : ("Registrar")}
             </button>
           </div>
         </form>

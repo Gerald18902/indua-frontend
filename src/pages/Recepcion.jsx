@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Layout from "../components/Layout";
@@ -31,6 +31,8 @@ function Recepcion() {
   const [mostrarModalTerminar, setMostrarModalTerminar] = useState(false);
 
   const [filtroCodigoBulto, setFiltroCodigoBulto] = useState("");
+
+  const inputEscaneoRef = useRef(null);
 
   useEffect(() => {
     cargarBultos();
@@ -195,8 +197,6 @@ function Recepcion() {
   };
 
   const handleCompletarCarga = async () => {
-    if (!filtroCodigoCarga) return;
-
     try {
       await axios.put(`${API_BASE_URL}/bultos/completar-carga`, {
         codigoCarga: filtroCodigoCarga,
@@ -204,6 +204,8 @@ function Recepcion() {
 
       toast.success("Carga completada con éxito");
       cargarBultos(); // refrescar tabla
+      setFiltroCodigoBulto("");
+      if (inputEscaneoRef.current) inputEscaneoRef.current.value = "";
     } catch (error) {
       toast.error("Hubo un error al completar la carga");
       console.error(error);
@@ -218,6 +220,9 @@ function Recepcion() {
 
       toast.success("Carga terminada con éxito");
       cargarBultos();
+      setFiltroCodigoBulto("");
+      if (inputEscaneoRef.current) inputEscaneoRef.current.value = "";
+
     } catch (error) {
       toast.error("Error al terminar la carga");
       console.error(error);
@@ -295,12 +300,12 @@ function Recepcion() {
                 Escanear código de bulto:
               </label>
               <input
+                ref={inputEscaneoRef}
                 type="text"
-                className={`px-4 py-2 rounded transition-colors ${
-                  cargaCompleta
+                className={`px-4 py-2 rounded transition-colors ${cargaCompleta
                     ? "bg-gray-300 dark:bg-gray-600 text-black dark:text-white cursor-not-allowed"
                     : "bg-gray-100 dark:bg-gray-800 text-black dark:text-white"
-                }`}
+                  }`}
                 placeholder="Ej: BANSA1234567890"
                 disabled={cargaCompleta}
                 onKeyDown={async (e) => {
@@ -311,6 +316,15 @@ function Recepcion() {
 
                     if (!regex.test(codigo)) {
                       toast.error(`Formato de código inválido`);
+                      return;
+                    }
+
+                    const bultoEncontrado = bultos.find(
+                      (b) => b.codigoBulto === codigo && b.codigoCarga === filtroCodigoCarga
+                    );
+
+                    if (!bultoEncontrado) {
+                      toast.error("El bulto no pertenece a la carga seleccionada");
                       return;
                     }
 
@@ -344,11 +358,10 @@ function Recepcion() {
               </label>
               <input
                 type="text"
-                className={`px-4 py-2 rounded transition-colors ${
-                  cargaCompleta
+                className={`px-4 py-2 rounded transition-colors ${cargaCompleta
                     ? "bg-gray-300 dark:bg-gray-600 text-black dark:text-white cursor-not-allowed"
                     : "bg-gray-100 dark:bg-gray-800 text-black dark:text-white"
-                }`}
+                  }`}
                 placeholder="Ej: BANSA1234..."
                 disabled={cargaCompleta}
                 value={filtroCodigoBulto}
@@ -447,11 +460,10 @@ function Recepcion() {
 
         <div className="flex justify-center gap-4 mt-6">
           <button
-            className={`${
-              filtroFecha && filtroCodigoCarga && !cargaCompleta
+            className={`${filtroFecha && filtroCodigoCarga && !cargaCompleta
                 ? "bg-green-500 hover:bg-green-600 cursor-pointer"
                 : "bg-gray-400 cursor-not-allowed"
-            } text-black font-bold py-2 px-4 rounded transition`}
+              } text-black font-bold py-2 px-4 rounded transition`}
             onClick={() => setMostrarConfirmacion(true)}
             disabled={!(filtroFecha && filtroCodigoCarga && !cargaCompleta)}
           >
@@ -459,11 +471,10 @@ function Recepcion() {
           </button>
 
           <button
-            className={`${
-              filtroFecha && filtroCodigoCarga && !cargaCompleta
+            className={`${filtroFecha && filtroCodigoCarga && !cargaCompleta
                 ? "bg-red-500 hover:bg-red-600 cursor-pointer"
                 : "bg-gray-400 cursor-not-allowed"
-            } text-white font-bold py-2 px-6 rounded transition`}
+              } text-white font-bold py-2 px-6 rounded transition`}
             onClick={() => setMostrarModalTerminar(true)}
             disabled={!(filtroFecha && filtroCodigoCarga && !cargaCompleta)}
           >

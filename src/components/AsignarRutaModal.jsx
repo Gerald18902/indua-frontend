@@ -189,8 +189,8 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
           .then((resp) => {
             const restantes = resp.data || [];
             if (restantes.length > 0) {
-              setLocalesSeleccionados(restantes);
-              setLocalesDisponibles([]);
+              setLocalesDisponibles(restantes);
+              setLocalesSeleccionados([]);
               setIdUnidadSeleccionada("");
               setComentario("");
               setPaso(1);
@@ -235,12 +235,12 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
                 });
             }
           });
-        setEnviando(false);
+          setEnviando(false)
       })
       .catch((err) => {
         console.error("Error al asignar rutas:", err);
         toast.error("Error al asignar la(s) ruta(s)");
-        setEnviando(false);
+        setEnviando(false)
       });
   };
 
@@ -476,7 +476,7 @@ const AsignarRutaModal = ({ isOpen, onClose, onRutaAsignada }) => {
                 className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-6 rounded"
                 onClick={handleIrAConfirmacion}
               >
-                Asignar Ruta
+                Asignar
               </button>
             </div>
           </>
