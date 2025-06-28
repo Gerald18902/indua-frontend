@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { FaTruckMoving } from "react-icons/fa";
-import { FaFileExcel } from "react-icons/fa";
+import { FaTruckMoving, FaFileExcel } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { API_BASE_URL } from "../config/api";
 
@@ -12,8 +11,10 @@ function CargaModal({ isOpen, onClose, onCargaRegistrada }) {
     duenoCarreta: "",
   });
   const [file, setFile] = useState(null);
-
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const regexCodigoCarga = /^OTM\d{10}$/;
+  const regexPlaca = /^[A-Z]{3}-\d{3}$/;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,13 +33,13 @@ function CargaModal({ isOpen, onClose, onCargaRegistrada }) {
 
   const getMaxDate = () => {
     const today = new Date();
-    today.setDate(today.getDate() - 1); // ayer
+    today.setDate(today.getDate() - 1);
     return today.toISOString().split("T")[0];
   };
 
   const getMinDate = () => {
     const date = new Date();
-    date.setDate(date.getDate() - 7); // hace 7 días
+    date.setDate(date.getDate() - 7);
     return date.toISOString().split("T")[0];
   };
 
@@ -52,6 +53,17 @@ function CargaModal({ isOpen, onClose, onCargaRegistrada }) {
 
     if (!file.name.endsWith(".xlsx")) {
       toast.error("Debes seleccionar un archivo válido en formato .xlsx");
+      return;
+    }
+
+    // Validaciones personalizadas
+    if (!regexCodigoCarga.test(form.codigoCarga)) {
+      toast.error("El código de carga debe tener el formato OTM + 10 dígitos (ej. OTM0000032098)");
+      return;
+    }
+
+    if (!regexPlaca.test(form.placaCarreta)) {
+      toast.error("La placa debe tener el formato AAA-999 (3 letras, guion y 3 números)");
       return;
     }
 
@@ -128,6 +140,7 @@ function CargaModal({ isOpen, onClose, onCargaRegistrada }) {
             className="bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-4 py-2 rounded"
             required
           />
+
           <input
             type="text"
             name="placaCarreta"
@@ -189,7 +202,9 @@ function CargaModal({ isOpen, onClose, onCargaRegistrada }) {
                     d="M4 12a8 8 0 018-8v8H4z"
                   />
                 </svg>
-              ) : ("Registrar")}
+              ) : (
+                "Registrar"
+              )}
             </button>
           </div>
         </form>

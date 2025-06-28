@@ -10,14 +10,22 @@ const Login = () => {
   const [error, setError] = useState('')
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
+    const { name, value } = e.target;
+
+    if (name === 'username') {
+      // Permitir solo letras y números
+      const regex = /^[a-zA-Z0-9]*$/;
+      if (!regex.test(value)) return; // No actualiza si hay caracteres inválidos
+    }
+
+    setForm({ ...form, [name]: value });
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('') // Limpiar error anterior
 
-  console.log("API BASE URL:", API_BASE_URL);
+    console.log("API BASE URL:", API_BASE_URL);
 
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -43,7 +51,7 @@ const Login = () => {
         navigate('/admin-home')
       } else {
         navigate('/dashboard')
-      }      
+      }
 
     } catch (err) {
       setError(err.message)

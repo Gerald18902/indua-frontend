@@ -13,6 +13,30 @@ const FormularioUsuario = ({ initialData = {}, onSubmit }) => {
     ...initialData
   })
 
+  const [errores, setErrores] = useState({})
+
+  const soloLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/
+  const usuarioValido = /^[A-Za-z0-9_]+$/
+
+  const validarCampos = () => {
+    const nuevosErrores = {}
+
+    if (!soloLetras.test(form.nombre)) {
+      nuevosErrores.nombre = 'El nombre solo debe contener letras y espacios.'
+    }
+
+    if (!soloLetras.test(form.apellido)) {
+      nuevosErrores.apellido = 'El apellido solo debe contener letras y espacios.'
+    }
+
+    if (!usuarioValido.test(form.username)) {
+      nuevosErrores.username = 'El nombre de usuario solo puede contener letras, números y guiones bajos.'
+    }
+
+    setErrores(nuevosErrores)
+    return Object.keys(nuevosErrores).length === 0
+  }
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
     const newValue = type === 'checkbox' ? checked : value
@@ -21,6 +45,8 @@ const FormularioUsuario = ({ initialData = {}, onSubmit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    if (!validarCampos()) return
+
     const dataToSend = { ...form }
     if (isEdit) delete dataToSend.password
     onSubmit(dataToSend)
@@ -29,32 +55,48 @@ const FormularioUsuario = ({ initialData = {}, onSubmit }) => {
   return (
     <form onSubmit={handleSubmit} className="text-black dark:text-white space-y-4">
       <div className="flex gap-4">
-        <input
-          name="nombre"
-          placeholder="Nombre"
-          value={form.nombre}
-          onChange={handleChange}
-          className="w-1/2 px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 text-black dark:text-white focus:outline-none"
-          required
-        />
-        <input
-          name="apellido"
-          placeholder="Apellido"
-          value={form.apellido}
-          onChange={handleChange}
-          className="w-1/2 px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 text-black dark:text-white focus:outline-none"
-          required
-        />
+        <div className="w-1/2">
+          <input
+            name="nombre"
+            placeholder="Nombre"
+            value={form.nombre}
+            onChange={handleChange}
+            className="w-full px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 text-black dark:text-white focus:outline-none"
+            required
+          />
+          {errores.nombre && (
+            <p className="text-red-500 text-sm mt-1">{errores.nombre}</p>
+          )}
+        </div>
+
+        <div className="w-1/2">
+          <input
+            name="apellido"
+            placeholder="Apellido"
+            value={form.apellido}
+            onChange={handleChange}
+            className="w-full px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 text-black dark:text-white focus:outline-none"
+            required
+          />
+          {errores.apellido && (
+            <p className="text-red-500 text-sm mt-1">{errores.apellido}</p>
+          )}
+        </div>
       </div>
 
-      <input
-        name="username"
-        placeholder="Nombre de usuario"
-        value={form.username}
-        onChange={handleChange}
-        className="w-full px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 text-black dark:text-white focus:outline-none"
-        required
-      />
+      <div>
+        <input
+          name="username"
+          placeholder="Nombre de usuario"
+          value={form.username}
+          onChange={handleChange}
+          className="w-full px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 text-black dark:text-white focus:outline-none"
+          required
+        />
+        {errores.username && (
+          <p className="text-red-500 text-sm mt-1">{errores.username}</p>
+        )}
+      </div>
 
       {!isEdit && (
         <input
@@ -93,7 +135,10 @@ const FormularioUsuario = ({ initialData = {}, onSubmit }) => {
         </select>
       ) : (
         <div className="text-sm text-gray-600 dark:text-gray-400">
-          Estado: <span className="text-green-600 dark:text-green-400 font-semibold">Activo</span>
+          Estado:{' '}
+          <span className="text-green-600 dark:text-green-400 font-semibold">
+            Activo
+          </span>
         </div>
       )}
 
